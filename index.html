@@ -200,7 +200,7 @@ $("rec").onclick=e=>{const v=e.target.dataset.v;if(v){$("date").value=v;render()
 $("date").onchange=render;$("dd").onchange=()=>{if($("dd").value){$("date").value=$("dd").value;render()}};const fd=()=>{const v=$("dd").value;if(!v)return"(미정)";const[y,m,d]=ymd(v);return v+" ("+WD[new Date(Date.UTC(y,m-1,d)).getUTCDay()]+")"};$("hr").oninput=chart;$("loc").onchange=()=>{render();recommend()};
 const today=new Date().toLocaleDateString("en-CA",{timeZone:"Australia/Sydney"});
 $("date").min=today;$("dd").min=today;$("date").value=today;render();recommend();
-if(PHOTOS&&PHOTOS[0])$("hero").style.backgroundImage="url("+PHOTOS[0].s+")";else if(HERO_IMG)$("hero").style.backgroundImage="url("+HERO_IMG+")";
+if(PHOTOS&&PHOTOS.length>=9)$("hero").style.backgroundImage="url("+PHOTOS[PHOTOS.length-9].s+")";else if(PHOTOS&&PHOTOS[0])$("hero").style.backgroundImage="url("+PHOTOS[0].s+")";else if(HERO_IMG)$("hero").style.backgroundImage="url("+HERO_IMG+")";
 let cur=-1,page=0,PER=4;
 function board(){const b=$("bd"),n=PHOTOS.length;
 if(cur<0){const pages=Math.max(1,Math.ceil(n/PER));if(page>=pages)page=pages-1;if(page<0)page=0;const s=page*PER,e=Math.min(s+PER,n),slice=PHOTOS.slice(s,e);
