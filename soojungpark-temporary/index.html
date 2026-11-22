@@ -154,8 +154,7 @@ textarea.inp{resize:vertical}
 footer.sitefoot{position:relative;z-index:1;padding:32px 16px 24px;text-align:center}
 footer.sitefoot p{font-size:13px;letter-spacing:.22em;color:var(--dim);margin:0}
 .center{text-align:center}
-.custom-note{margin:18px 0 0;padding:20px 18px;border:1px solid rgba(201,162,39,.55);border-radius:14px;background:rgba(201,162,39,.14);text-align:center;font-size:20px;line-height:1.65;font-weight:700;color:#ffe9a8;letter-spacing:-.01em}
-@media(max-width:480px){.custom-note{font-size:19px;padding:18px 14px}}
+.card-note{display:block;margin-top:14px;padding:12px 10px;border:1px solid rgba(201,162,39,.55);border-radius:10px;background:rgba(201,162,39,.14);text-align:center;font-size:15px;line-height:1.6;font-weight:700;color:#ffe9a8;letter-spacing:-.01em}
 .pt{padding-top:40px}.pt2{padding-top:56px}
 </style>
 </head>
@@ -191,11 +190,11 @@ footer.sitefoot p{font-size:13px;letter-spacing:.22em;color:var(--dim);margin:0}
 <div class="wrap">
 <section class="sec" id="v-home">
 <div class="hero"><p class="ey">MIRINE TOURS • 미리내투어</p><h1>미리내투어가 지키려고 하는 가치는 패키지 투어와 플랫폼 투어가 망쳐놓은 투어의 본질을 지키려 합니다. 그 본질은 투어는 인문학 일 수 밖에 없다는 원칙입니다</h1></div>
-<div style="padding-top:32px"><p class="ey">TRAVEL PRODUCTS</p><h2 class="h2">여행상품</h2><p class="sub">카드를 누르면 설명이 열립니다.</p><span class="pill">시드니 • 호주</span><div class="grid2" id="hg"></div><p class="custom-note">시드니에 필요한 모든 여행상품 이동 어느 것 이든 문의 주세요<br>자세한 답변 드리겠습니다</p></div>
+<div style="padding-top:32px"><p class="ey">TRAVEL PRODUCTS</p><h2 class="h2">여행상품</h2><p class="sub">카드를 누르면 설명이 열립니다.</p><span class="pill">시드니 • 호주</span><div class="grid2" id="hg"></div></div>
 </section>
 
 <section class="sec" id="v-products">
-<div class="pt"><p class="ey">TRAVEL PRODUCTS</p><h2 class="h2">여행상품</h2><p class="sub">카드를 누르면 설명이 열립니다.</p><span class="pill">시드니 • 호주</span><div class="grid2" id="pg"></div><p class="custom-note">시드니에 필요한 모든 여행상품 이동 어느 것 이든 문의 주세요<br>자세한 답변 드리겠습니다</p><div class="grid2" id="ag" style="margin-top:32px"></div></div>
+<div class="pt"><p class="ey">TRAVEL PRODUCTS</p><h2 class="h2">여행상품</h2><p class="sub">카드를 누르면 설명이 열립니다.</p><span class="pill">시드니 • 호주</span><div class="grid2" id="pg"></div><div class="grid2" id="ag" style="margin-top:32px"></div></div>
 </section>
 
 <section class="sec" id="v-board">
@@ -322,7 +321,7 @@ function go(v){
   if(v==="admin")renderAdmin();
 }
 function cardHTML(p){
-  return '<button type="button" class="card" onclick="op(\''+p.id+'\')" aria-label="'+esc(p.modalTitle)+' 상세 보기"><span class="card-banner" style="background:'+p.gradient+'"><span aria-hidden="true">'+p.glyph+'</span></span><span class="card-body" style="display:block"><span class="card-title">'+esc(p.modalTitle)+'</span>'+(p.cardPrice?'<span class="card-price" style="display:block">'+esc(p.cardPrice)+'</span>':"")+'</span></button>';
+  return '<button type="button" class="card" onclick="op(\''+p.id+'\')" aria-label="'+esc(p.modalTitle)+' 상세 보기"><span class="card-banner" style="background:'+p.gradient+'"><span aria-hidden="true">'+p.glyph+'</span></span><span class="card-body" style="display:block"><span class="card-title">'+esc(p.modalTitle)+'</span>'+(p.cardPrice?'<span class="card-price" style="display:block">'+esc(p.cardPrice)+'</span>':"")+(p.id==="custom"?'<span class="card-note">시드니에 필요한 모든 여행상품 이동 어느 것 이든 문의 주세요<br>자세한 답변 드리겠습니다</span>':"")+'</span></button>';
 }
 document.getElementById("hg").innerHTML=PRODUCTS.map(cardHTML).join("");
 document.getElementById("pg").innerHTML=PRODUCTS.map(cardHTML).join("");
