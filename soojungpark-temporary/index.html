@@ -204,7 +204,7 @@ footer.sitefoot p{font-size:13px;letter-spacing:.22em;color:var(--dim);margin:0}
 </section>
 
 <section class="sec" id="v-admin">
-<div class="pt"><div class="center"><h2 style="margin:0;font-size:26px;font-weight:700">Admin</h2><p class="sub">관리자 메뉴</p></div><h3 style="margin-top:40px;font-size:18px;font-weight:700">문의 목록</h3><div id="adminRoot" style="margin-top:16px"></div></div>
+<div class="pt"><div class="center"><h2 style="margin:0;font-size:26px;font-weight:700">Admin</h2><p class="sub">관리자 메뉴</p></div><div id="adminLock" style="margin:32px auto 0;max-width:420px"><div class="admin-card"><p style="margin:0;font-size:17px;font-weight:700;text-align:center">비밀번호를 입력해 주세요</p><p class="sub" style="text-align:center;margin-top:6px">관리자만 문의 목록을 볼 수 있습니다.</p><form id="adminPwForm" novalidate style="margin-top:18px"><label class="lbl" for="adminPw">비밀번호</label><input class="inp" id="adminPw" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호를 입력해 주세요"><p class="err" id="adminPwErr" role="alert" style="display:none;margin:10px 0 0"></p><button type="submit" class="goldbtn full" style="margin-top:16px">확인</button></form></div></div><div id="adminContent" style="display:none"><h3 style="margin-top:40px;font-size:18px;font-weight:700">문의 목록</h3><div id="adminRoot" style="margin-top:16px"></div><div style="text-align:center;margin-top:24px"><button type="button" class="ghostbtn" id="adminLockBtn">잠그기</button></div></div></div>
 </section>
 
 <section class="sec" id="v-test">
@@ -369,13 +369,44 @@ if("IntersectionObserver" in window){
   document.querySelectorAll(".reel-frame").forEach(function(el){el.innerHTML='<iframe src="'+el.getAttribute("data-reel")+'embed/" title="Instagram 릴스" loading="lazy"></iframe>'});
 }
 /* ── Admin (미리보기: 이 화면에서 남긴 문의만) ── */
+var adminUnlocked=false;
 function renderAdmin(){
+  var lockEl=document.getElementById("adminLock"),contentEl=document.getElementById("adminContent");
+  if(!adminUnlocked){
+    if(lockEl)lockEl.style.display="block";
+    if(contentEl)contentEl.style.display="none";
+    return;
+  }
+  if(lockEl)lockEl.style.display="none";
+  if(contentEl)contentEl.style.display="block";
   var root=document.getElementById("adminRoot");
   if(!sessionInquiries.length){root.innerHTML='<p class="sub" style="margin-top:0">아직 접수된 문의가 없습니다. 투어 상품을 눌러 상세 화면에서 문의를 남겨 주세요.<br>이 미리보기에서는 문의가 이메일로 열리고, 여기에 남긴 내역은 이 화면을 여는 동안만 보입니다.</p>';return}
   root.innerHTML=sessionInquiries.map(function(q){
     return '<div class="admin-card" style="margin-bottom:12px"><p style="margin:0;font-size:15px;font-weight:700">'+esc(q.product)+' <span style="margin-left:8px;font-size:13px;font-weight:500;color:var(--dim)">'+esc(q.name)+'님</span></p><p style="margin:4px 0 0;font-size:13px;color:#d6dcee">'+(q.date?"희망 날자: "+esc(q.date)+" · ":"")+(q.people?"인원: "+esc(q.people)+" · ":"")+'접수: '+esc(q.when)+'</p>'+(q.message?'<p style="margin:4px 0 0;font-size:13px;line-height:1.6;color:var(--dim)">'+esc(q.message)+'</p>':"")+'</div>';
   }).join("");
 }
+(function(){
+  var form=document.getElementById("adminPwForm");
+  var ADMIN_PW_HASH="743de86bd90cb80e8bfeaa14cf915b67cbbca332c4f1a9688b96ed6f698b73e5";
+  function adminFail(pw,err){err.textContent="비밀번호가 맞지 않습니다. 다시 입력해 주세요.";err.style.display="block";pw.value="";pw.focus()}
+  function adminOk(pw,err){adminUnlocked=true;err.style.display="none";pw.value="";renderAdmin()}
+  if(form)form.addEventListener("submit",function(e){
+    e.preventDefault();
+    var pw=document.getElementById("adminPw"),err=document.getElementById("adminPwErr");
+    var val=pw.value;
+    if(window.crypto&&crypto.subtle&&crypto.subtle.digest){
+      crypto.subtle.digest("SHA-256",new TextEncoder().encode(val)).then(function(buf){
+        var hex=Array.prototype.map.call(new Uint8Array(buf),function(b){return ("0"+b.toString(16)).slice(-2)}).join("");
+        if(hex===ADMIN_PW_HASH)adminOk(pw,err);else adminFail(pw,err);
+      }).catch(function(){adminFail(pw,err)});
+    }else{
+      err.textContent="이 브라우저에서는 비밀번호를 확인할 수 없습니다. 다른 브라우저에서 시도해 주세요.";
+      err.style.display="block";
+    }
+  });
+  var lockBtn=document.getElementById("adminLockBtn");
+  if(lockBtn)lockBtn.addEventListener("click",function(){adminUnlocked=false;renderAdmin()});
+})();
 renderAdmin();
 /* ── 모달 공통 ── */
 var curProduct=null;
