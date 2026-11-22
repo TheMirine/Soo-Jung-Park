@@ -360,28 +360,36 @@ function boardList(){boardOpen=null;renderBoard()}
 function boardNav(d){if(boardOpen===null)return;boardOpen+=d;renderBoard();window.scrollTo(0,0)}
 function boardSetPage(p){boardPage=p;renderBoard()}
 renderBoard();
-/* ── 연재글 ── */
-var seriesOpen=null;
+/* ── 연재글 (게시판) ── */
+var SERIES_POSTS=[
+{no:1,title:"시드니 가이드가 바라본 본다이 총격 사건",preview:"본다이 총격 사건이 발생한 지 1년이 되어 가는 시점에 이 글을 내 연재글에 처음으로 올려본다.",intro:"본다이 총격 사건이 발생한 지 1년이 되어 가는 시점에 이 글을 내 연재글에 처음으로 올려본다. 그 당시 나는 큰 충격을 받았다. 그리고 주변 동료들의 너무나 무관심한 반응이 더 큰 충격이었다. 어느 누구도 관심을 가지지 않는다는 것에 무기력함이 생겨서 글로 남겨야겠다고 생각했고, 몇 날 며칠을 자료를 조사하고 글을 썼다. 그리고 내가 지향하는 여행의 상품과도 비슷한 지점이 있기에 나의 첫 연재글로 이 글을 선택했다. 참고로 이 글에 등장하는 거의 대부분의 글은 두 책에서 인용되었음을 밝혀둔다."}
+];
+var seriesOpen=null,seriesPart=0;
 function renderSeries(){
   var root=document.getElementById("seriesRoot");
   var arts=window.SERIES_ARTICLES||[];
-  if(seriesOpen!==null&&arts[seriesOpen]){
-    var a=arts[seriesOpen],html='<article class="article" style="margin-top:24px"><p style="font-size:13px;color:var(--dim);margin:0">No. '+a.no+' / '+arts.length+'</p><h3 style="margin:6px 0 0;font-size:22px;font-weight:700;line-height:1.5">'+esc(a.title)+'</h3><p style="margin-top:6px;font-size:13px;color:var(--dim)">글 박수정</p><div style="margin-top:24px">';
-    a.blocks.forEach(function(b){
-      if(b.kind==="h")html+='<h4>'+esc(b.text)+'</h4>';
-      else if(b.kind==="img")html+='<figure><img src="'+(SERIES_IMGS[b.img]||"")+'" alt="'+esc(b.alt)+'" loading="lazy"><figcaption>'+esc(b.caption)+'</figcaption></figure>';
-      else html+='<p class="body">'+rich(b.text)+'</p>';
-    });
-    html+='</div><div class="navrow"><button type="button" class="navbtn" '+(seriesOpen===0?"disabled":"")+' onclick="seriesNav(-1)">이전 글</button><button type="button" class="navbtn" onclick="seriesList()">목록</button><button type="button" class="navbtn" '+(seriesOpen===arts.length-1?"disabled":"")+' onclick="seriesNav(1)">다음 글</button></div></article>';
+  if(seriesOpen!==null&&SERIES_POSTS[seriesOpen]){
+    var post=SERIES_POSTS[seriesOpen],a=arts[seriesPart];
+    var html='<article class="article" style="margin-top:24px"><p style="font-size:13px;color:var(--dim);margin:0">No. '+post.no+' / '+SERIES_POSTS.length+'</p><h3 style="margin:6px 0 0;font-size:22px;font-weight:700;line-height:1.5">'+esc(post.title)+'</h3><p style="margin-top:6px;font-size:13px;color:var(--dim)">글 박수정</p><div style="margin-top:24px">';
+    if(seriesPart===0)html+='<p class="body">'+esc(post.intro)+'</p>';
+    if(a){
+      html+='<h4 style="font-size:19px;margin-top:36px">'+esc(a.title)+'</h4>';
+      a.blocks.forEach(function(b){
+        if(b.kind==="h")html+='<h4>'+esc(b.text)+'</h4>';
+        else if(b.kind==="img")html+='<figure><img src="'+(SERIES_IMGS[b.img]||"")+'" alt="'+esc(b.alt)+'" loading="lazy"><figcaption>'+esc(b.caption)+'</figcaption></figure>';
+        else html+='<p class="body">'+rich(b.text)+'</p>';
+      });
+    }
+    html+='</div><div class="navrow"><button type="button" class="navbtn" '+(seriesPart===0?"disabled":"")+' onclick="seriesNav(-1)">이전 글</button><button type="button" class="navbtn" onclick="seriesList()">목록</button><button type="button" class="navbtn" '+(seriesPart===arts.length-1?"disabled":"")+' onclick="seriesNav(1)">다음 글</button></div></article>';
     root.innerHTML=html;return;
   }
-  var h='<p style="margin-top:20px;font-size:16px;line-height:1.9;color:#e6ebf7">'+esc(FIRST_PARA)+'</p><h3 style="margin-top:36px;font-size:20px;font-weight:700;line-height:1.5">본다이 비치 총격 사건에 대한 역사적 고찰</h3><p style="margin-top:6px;font-size:14px;color:var(--dim)">글 박수정</p><div style="margin-top:8px">';
-  arts.forEach(function(a,i){h+='<button type="button" class="series-item" onclick="seriesDetail('+i+')" aria-label="'+esc(a.title)+' 읽기"><span class="sn">No. '+a.no+'</span><span class="st">'+esc(a.title)+'</span><span class="sp">'+esc(a.preview)+'</span></button>'});
+  var h='<div style="margin-top:8px">';
+  SERIES_POSTS.forEach(function(p,i){h+='<button type="button" class="series-item" onclick="seriesDetail('+i+')" aria-label="'+esc(p.title)+' 읽기"><span class="sn">No. '+p.no+'</span><span class="st">'+esc(p.title)+'</span><span class="sp">'+esc(p.preview)+'</span></button>'});
   h+='</div>';root.innerHTML=h;
 }
-function seriesDetail(i){seriesOpen=i;renderSeries();window.scrollTo(0,0)}
-function seriesList(){seriesOpen=null;renderSeries()}
-function seriesNav(d){seriesOpen+=d;renderSeries();window.scrollTo(0,0)}
+function seriesDetail(i){seriesOpen=i;seriesPart=0;renderSeries();window.scrollTo(0,0)}
+function seriesList(){seriesOpen=null;seriesPart=0;renderSeries()}
+function seriesNav(d){var arts=window.SERIES_ARTICLES||[];var n=seriesPart+d;if(n<0||n>=arts.length)return;seriesPart=n;renderSeries();window.scrollTo(0,0)}
 renderSeries();
 /* ── 인스타 릴스 (누르면 이 화면 안의 재생 창에서 재생) ── */
 var reelsRoot=document.getElementById("reelsRoot");
