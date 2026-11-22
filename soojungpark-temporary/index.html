@@ -109,6 +109,10 @@ img{max-width:100%}
 .inp{width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);padding:10px 14px;font-size:15px;color:#fff;font-family:inherit}
 .inp::placeholder{color:var(--muted2)}
 select.inp option{color:#111}
+.inp-light{background:#ffffff;color:#111827;border:2px solid var(--accent);font-weight:500}
+.inp-light::placeholder{color:#6b7280}
+select.inp-light{background:#ffffff;color:#111827}
+select.inp-light option{color:#111827;background:#ffffff}
 textarea.inp{resize:vertical}
 .rowflex{display:flex;align-items:center;gap:8px}
 .rowflex .inp{min-width:0;flex:1}
@@ -437,15 +441,11 @@ function priceHTML(p){
   if(p.priceSection.kind==="pr")return '<div style="margin-top:28px"><h4 class="secT">가격</h4><div class="pr" style="margin-top:10px">'+esc(p.priceSection.text)+'</div></div>';
   return '<div style="margin-top:28px"><h4 class="secT">가격</h4><p style="margin:10px 0 0;font-size:15px;line-height:1.7;color:#d6dcee">'+esc(p.priceSection.text)+'</p></div>';
 }
-var DOMAINS=["naver.com","gmail.com","daum.net","hanmail.net","kakao.com","nate.com","hotmail.com","기타"];
 function inquiryFormHTML(p){
-  var opts=DOMAINS.map(function(d){return '<option value="'+d+'">'+d+'</option>'}).join("");
   return '<form id="inqForm" novalidate><div style="display:flex;flex-direction:column;gap:14px">'
   +'<div><label class="lbl" for="fprod">상품</label><input class="inp" id="fprod" value="'+esc(p.modalTitle)+'" readonly></div>'
   +'<div><label class="lbl" for="fn">이름</label><input class="inp" id="fn" placeholder="이름을 입력해 주세요"></div>'
-  +'<div><label class="lbl" for="fe">이메일</label><div class="rowflex"><input class="inp" id="fe" placeholder="아이디" inputmode="email"><span style="flex-shrink:0;color:var(--dim)">@</span><select class="inp" id="fd" aria-label="이메일 도메인">'+opts+'</select></div><input class="inp" id="fx" placeholder="도메인 직접 입력" style="display:none;margin-top:6px"></div>'
-  +'<div><label class="lbl" for="ft">전화</label><input class="inp" id="ft" type="tel" inputmode="numeric" placeholder="숫자만 입력"></div>'
-  +'<div><label class="lbl" for="fk">카카오톡 ID</label><input class="inp" id="fk"></div>'
+  +'<div><label class="lbl" for="fct">연락처</label><select class="inp inp-light" id="fct"><option value="">연락처 종류를 선택해 주세요</option><option value="email">이메일</option><option value="phone">전화번호</option><option value="kakao">카카오톡 ID</option></select><div id="fctExtra" style="margin-top:12px"></div></div>'
   +'<div><label class="lbl" for="fdt">문의 희망날자</label><div class="rowflex"><input class="inp" id="fdt" readonly placeholder="날자를 선택하세요"><button type="button" id="fdtBtn" aria-label="날자 선택" style="width:44px;height:44px;flex-shrink:0;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);font-size:18px">📅</button></div></div>'
   +'<div><label class="lbl" for="fp">인원</label><input class="inp" id="fp" inputmode="numeric" placeholder="예: 2명"></div>'
   +'<div><label class="lbl" for="fm2">문의 내용</label><textarea class="inp" id="fm2" rows="4" placeholder="궁금하신 점을 남겨 주세요"></textarea></div>'
@@ -461,21 +461,29 @@ function openProductModal(p){
   +(hasSteps?itinHTML+inqHTML:inqHTML+itinHTML)
   +priceHTML(p)
   +'<div style="height:40px"></div>';
-  var fd=document.getElementById("fd"),fx=document.getElementById("fx");
-  fd.addEventListener("change",function(){fx.style.display=fd.value==="기타"?"block":"none"});
-  var ft=document.getElementById("ft");
-  ft.addEventListener("input",function(){ft.value=ft.value.replace(/[^0-9]/g,"")});
+  var fct=document.getElementById("fct");
+  fct.addEventListener("change",function(){
+    var ex=document.getElementById("fctExtra");
+    if(fct.value==="email"){ex.innerHTML='<div class="rowflex"><input class="inp inp-light" id="fem" placeholder="이메일 아이디" style="flex:1.4"><span aria-hidden="true" style="color:#fff">@</span><select class="inp inp-light" id="fdom" aria-label="이메일 도메인"><option value="naver.com">naver.com</option><option value="gmail.com">gmail.com</option><option value="daum.net">daum.net</option><option value="kakao.com">kakao.com</option><option value="hanmail.net">hanmail.net</option><option value="nate.com">nate.com</option><option value="hotmail.com">hotmail.com</option><option value="other">Other (직접 입력)</option></select></div><input class="inp inp-light" id="fdomx" placeholder="도메인을 직접 입력해 주세요 (예: example.com)" style="display:none;margin-top:8px">';document.getElementById("fdom").addEventListener("change",function(){document.getElementById("fdomx").style.display=this.value==="other"?"block":"none"})}
+    else if(fct.value==="phone")ex.innerHTML='<input class="inp inp-light" id="fph" type="tel" placeholder="전화번호를 입력해 주세요">';
+    else if(fct.value==="kakao")ex.innerHTML='<input class="inp inp-light" id="fkk" placeholder="카카오톡 ID를 입력해 주세요">';
+    else ex.innerHTML="";
+  });
   document.getElementById("fdt").addEventListener("click",function(){openPicker(document.getElementById("fdt").value,function(v){document.getElementById("fdt").value=v})});
   document.getElementById("fdtBtn").addEventListener("click",function(){openPicker(document.getElementById("fdt").value,function(v){document.getElementById("fdt").value=v})});
   document.getElementById("inqForm").addEventListener("submit",function(e){
     e.preventDefault();
-    var name=document.getElementById("fn").value.trim(),eid=document.getElementById("fe").value.trim(),dom=fd.value,cdom=document.getElementById("fx").value.trim(),phone=ft.value.trim(),kakao=document.getElementById("fk").value.trim(),date=document.getElementById("fdt").value.trim(),people=document.getElementById("fp").value.trim(),msg=document.getElementById("fm2").value.trim(),err=document.getElementById("formErr");
-    if(!name){err.textContent="이름을 입력해 주세요.";err.style.display="block";return}
-    if(eid&&dom==="기타"&&!cdom){err.textContent="이메일 도메인을 입력해 주세요.";err.style.display="block";return}
-    var email=eid?eid+"@"+(dom==="기타"?cdom:dom):"";
-    sessionInquiries.unshift({product:p.modalTitle,name:name,date:date,people:people,message:msg,when:new Date().toLocaleString("ko-KR")});
+    var name=document.getElementById("fn").value.trim(),date=document.getElementById("fdt").value.trim(),people=document.getElementById("fp").value.trim(),msg=document.getElementById("fm2").value.trim(),err=document.getElementById("formErr"),type=fct.value,contact="";
+    function fail(t){err.textContent=t;err.style.display="block"}
+    if(!name)return fail("이름을 입력해 주세요.");
+    if(!type)return fail("연락처 종류를 골라 주세요.");
+    if(type==="email"){var eid=document.getElementById("fem").value.trim(),dom=document.getElementById("fdom").value;if(!eid)return fail("이메일 아이디를 입력해 주세요.");if(dom==="other"){var cd=document.getElementById("fdomx").value.trim();if(!cd)return fail("이메일 도메인을 직접 입력해 주세요.");contact="이메일: "+eid+"@"+cd}else contact="이메일: "+eid+"@"+dom}
+    if(type==="phone"){var ph=document.getElementById("fph").value.trim();if(!ph)return fail("전화번호를 입력해 주세요.");contact="전화번호: "+ph}
+    if(type==="kakao"){var kk=document.getElementById("fkk").value.trim();if(!kk)return fail("카카오톡 ID를 입력해 주세요.");contact="카카오톡 ID: "+kk}
+    var fullMsg=[msg,contact].filter(Boolean).join("\n");
+    sessionInquiries.unshift({product:p.modalTitle,name:name,date:date,people:people,message:fullMsg,when:new Date().toLocaleString("ko-KR")});
     var subject="[미리내투어 문의] "+p.modalTitle;
-    var body=["상품: "+p.modalTitle,"이름: "+name,"이메일: "+email,"전화: "+phone,"카카오톡 ID: "+kakao,"희망날자: "+date,"인원: "+people,"문의내용: "+msg].join("\n");
+    var body=["상품: "+p.modalTitle,"이름: "+name,"연락처: "+contact,"희망날자: "+date,"인원: "+people,"문의내용: "+msg].join("\n");
     document.getElementById("fmWrap").innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다. 이메일 앱이 함께 열립니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
     window.location.href="mailto:soojung_park@hotmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
   });
@@ -578,7 +586,7 @@ function renderStar(){
   +'<div><label class="lbl" for="sfdt">희망 날짜</label><input class="inp" id="sfdt" value="'+esc(star.dateText)+'"></div>'
   +'<div><label class="lbl" for="sfinfo">선택한 날짜 정보</label><input class="inp" id="sfinfo" value="'+esc(info)+'" readonly></div>'
   +'<div><span class="lbl">동물원 포함/생략</span>'+zooHTML()+'</div>'
-  +'<div><label class="lbl" for="sfct">연락처</label><select class="inp" id="sfct"><option value="">연락처 종류를 선택해 주세요</option><option value="email">이메일</option><option value="phone">전화번호</option><option value="kakao">카카오톡 ID</option></select><div id="sfctExtra" style="margin-top:12px"></div></div>'
+  +'<div><label class="lbl" for="sfct">연락처</label><select class="inp inp-light" id="sfct"><option value="">연락처 종류를 선택해 주세요</option><option value="email">이메일</option><option value="phone">전화번호</option><option value="kakao">카카오톡 ID</option></select><div id="sfctExtra" style="margin-top:12px"></div></div>'
   +'<div><label class="lbl" for="sfm">메시지</label><textarea class="inp" id="sfm" rows="4" placeholder="예: 카툼바 저녁은 자유식으로 하고 싶어요"></textarea></div>'
   +'<p class="err" id="starErr" role="alert" style="display:none;margin:0"></p>'
   +'<button type="submit" class="goldbtn full">문의 보내기</button></div></form></div></div><div style="height:40px"></div>';
@@ -586,9 +594,9 @@ function renderStar(){
   var ct=document.getElementById("sfct");
   ct.addEventListener("change",function(){
     var ex=document.getElementById("sfctExtra");
-    if(ct.value==="email"){ex.innerHTML='<div class="rowflex"><input class="inp" id="sfem" placeholder="이메일 아이디" style="flex:1.4"><span aria-hidden="true">@</span><select class="inp" id="sfdom" aria-label="이메일 도메인"><option value="naver.com">naver.com</option><option value="gmail.com">gmail.com</option><option value="daum.net">daum.net</option><option value="kakao.com">kakao.com</option><option value="hanmail.net">hanmail.net</option><option value="nate.com">nate.com</option><option value="hotmail.com">hotmail.com</option><option value="other">Other (직접 입력)</option></select></div><input class="inp" id="sfdomx" placeholder="도메인을 직접 입력해 주세요 (예: example.com)" style="display:none;margin-top:8px">';document.getElementById("sfdom").addEventListener("change",function(){document.getElementById("sfdomx").style.display=this.value==="other"?"block":"none"})}
-    else if(ct.value==="phone")ex.innerHTML='<input class="inp" id="sfph" type="tel" placeholder="전화번호를 입력해 주세요">';
-    else if(ct.value==="kakao")ex.innerHTML='<input class="inp" id="sfkk" placeholder="카카오톡 ID를 입력해 주세요">';
+    if(ct.value==="email"){ex.innerHTML='<div class="rowflex"><input class="inp inp-light" id="sfem" placeholder="이메일 아이디" style="flex:1.4"><span aria-hidden="true" style="color:#fff">@</span><select class="inp inp-light" id="sfdom" aria-label="이메일 도메인"><option value="naver.com">naver.com</option><option value="gmail.com">gmail.com</option><option value="daum.net">daum.net</option><option value="kakao.com">kakao.com</option><option value="hanmail.net">hanmail.net</option><option value="nate.com">nate.com</option><option value="hotmail.com">hotmail.com</option><option value="other">Other (직접 입력)</option></select></div><input class="inp inp-light" id="sfdomx" placeholder="도메인을 직접 입력해 주세요 (예: example.com)" style="display:none;margin-top:8px">';document.getElementById("sfdom").addEventListener("change",function(){document.getElementById("sfdomx").style.display=this.value==="other"?"block":"none"})}
+    else if(ct.value==="phone")ex.innerHTML='<input class="inp inp-light" id="sfph" type="tel" placeholder="전화번호를 입력해 주세요">';
+    else if(ct.value==="kakao")ex.innerHTML='<input class="inp inp-light" id="sfkk" placeholder="카카오톡 ID를 입력해 주세요">';
     else ex.innerHTML="";
   });
   document.getElementById("starForm").addEventListener("submit",function(e){
