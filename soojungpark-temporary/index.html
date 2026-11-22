@@ -221,10 +221,10 @@ footer.sitefoot p{font-size:13px;letter-spacing:.22em;color:var(--dim);margin:0}
 var PRODUCTS=[
 {id:"starlight",title:"별빛투어",modalTitle:"별빛투어",glyph:"★",gradient:"linear-gradient(135deg,#1b2a5c,#0a1020)",cardPrice:null,itinerary:["숙소출발","동물원","로라마을","에코포인트","카툼바 저녁 자유식","노을감상","별보기","숙소귀환"],note:"동물원 생략 가능, 일정 맞춤 가능"},
 {id:"starlight-1night",title:"별빛1박 기획투어",modalTitle:"별빛1박 기획투어",glyph:"☾",gradient:"linear-gradient(135deg,#2a1b5c,#0a1020)",cardPrice:null,intro:"플랫폼 투어가 아니고, 1-2박 머물며 우주의 깊은 감동을 느끼는 투어입니다. 숙박은 문의 후 같이 정합니다.",itinerary:[],itineraryText:"문의가 들어오면 시드니 인근에 있는 동네중에 은하수를 보기에 가장 날자를 골라 좋은 숙소를 같이 찾아 일정을 짜 드립니다",priceSection:{kind:"p",text:"가격은 1박이냐 2박이냐에 따라 달라지고 인원에 따라 달라 집니다 문의 주시면 최대한 맞춰서 견적서와 일정을 알려 드립니다"}},
-{id:"blue-mountains",title:"블루마운틴",modalTitle:"블루마운틴 투어",glyph:"◭",gradient:"linear-gradient(135deg,#1b4a5c,#0a1020)",cardPrice:"$550",itinerary:["숙소 출발","동물원 구경","로라 마을 점심","시닉월드","에코포인트","숙소 도착"],sep:"동물원 / 시닉월드 / 점심은 각각 분리된 항목",priceSection:{kind:"pr",text:"$550"}},
-{id:"port-stephens",title:"포트스테판",modalTitle:"포트스테판",glyph:"◭",gradient:"linear-gradient(135deg,#5c4a1b,#0a1020)",cardPrice:"$800",itinerary:["숙소 출발","휴게소","사막투어","넬슨베이 자유식 점심","웨일워칭 크루즈","숙소귀환"],sep:"사막투어 / 크루즈 / 점심은 분리",priceSection:{kind:"pr",text:"$800"}},
-{id:"hunter-valley",title:"헌터밸리",modalTitle:"헌터밸리 와인 투어",glyph:"◭",gradient:"linear-gradient(135deg,#5c1b3a,#0a1020)",cardPrice:"$700",itinerary:["숙소출발","헌터밸리 와인테스팅","점심자유식","와인테스팅 2","치즈테스팅","숙소귀환"],sep:"점심은 별도",priceSection:{kind:"pr",text:"$700"}},
-{id:"wollongong",title:"울릉공",modalTitle:"울릉공 투어",glyph:"◭",gradient:"linear-gradient(135deg,#1b5c4a,#0a1020)",cardPrice:"$550",itinerary:["숙소출발","헹글라이딩 포인트 전망대","해안가 드라이브 코스","울릉공 등대","울릉공에서 자유식","키아마","숙소귀환"],sep:"점심불포함",priceSection:{kind:"pr",text:"$550"}},
+{id:"blue-mountains",title:"블루마운틴",modalTitle:"블루마운틴 투어",glyph:"◭",gradient:"linear-gradient(135deg,#1b4a5c,#0a1020)",cardPrice:"$550",icons:["🚐","🦘","🏘️","🚠","🏔️","🏠"],itinerary:["숙소 출발","동물원 구경","로라 마을 점심","시닉월드","에코포인트","숙소 도착"],sep:"동물원 / 시닉월드 / 점심은 각각 분리된 항목",priceSection:{kind:"pr",text:"$550"}},
+{id:"port-stephens",title:"포트스테판",modalTitle:"포트스테판",glyph:"◭",gradient:"linear-gradient(135deg,#5c4a1b,#0a1020)",cardPrice:"$800",icons:["🚐","☕","🏜️","🍽️","🐳","🏠"],itinerary:["숙소 출발","휴게소","사막투어","넬슨베이 자유식 점심","웨일워칭 크루즈","숙소귀환"],sep:"사막투어 / 크루즈 / 점심은 분리",priceSection:{kind:"pr",text:"$800"}},
+{id:"hunter-valley",title:"헌터밸리",modalTitle:"헌터밸리 와인 투어",glyph:"◭",gradient:"linear-gradient(135deg,#5c1b3a,#0a1020)",cardPrice:"$700",icons:["🚐","🍷","🍽️","🍇","🧀","🏠"],itinerary:["숙소출발","헌터밸리 와인테스팅","점심자유식","와인테스팅 2","치즈테스팅","숙소귀환"],sep:"점심은 별도",priceSection:{kind:"pr",text:"$700"}},
+{id:"wollongong",title:"울릉공",modalTitle:"울릉공 투어",glyph:"◭",gradient:"linear-gradient(135deg,#1b5c4a,#0a1020)",cardPrice:"$550",icons:["🚐","🪂","🚗","🗼","🍽️","💨","🏠"],itinerary:["숙소출발","헹글라이딩 포인트 전망대","해안가 드라이브 코스","울릉공 등대","울릉공에서 자유식","키아마","숙소귀환"],sep:"점심불포함",priceSection:{kind:"pr",text:"$550"}},
 {id:"custom",title:"커스텀 일정",modalTitle:"커스텀 일정",glyph:"✦",gradient:"linear-gradient(135deg,#3a3a5c,#0a1020)",cardPrice:null,itinerary:[],itineraryText:"원하는 일정을 문의하면 견적서와 일정표를 만들어 드립니다"}
 ];
 var AIRPORT=[
@@ -378,6 +378,14 @@ function flowHTML(p){
   if(p.sep)h+='<p class="nt" style="margin-top:8px">'+esc(p.sep)+'</p>';
   return h;
 }
+function iconStepsHTML(p){
+  var h='<div class="star-steps" role="list" aria-label="'+esc(p.modalTitle)+' 일정">';
+  p.itinerary.forEach(function(s,i){var ic=(p.icons&&p.icons[i])||starIcon(s,i);h+='<div class="star-step" role="listitem"><span class="star-ico" aria-hidden="true">'+ic+'</span><span class="star-step-label">'+esc(s)+'</span></div>'});
+  h+='</div>';
+  if(p.note)h+='<p class="nt" style="margin-top:14px">참고: '+esc(p.note)+'</p>';
+  if(p.sep)h+='<p class="nt" style="margin-top:14px">'+esc(p.sep)+'</p>';
+  return h;
+}
 function priceHTML(p){
   if(!p.priceSection)return"";
   if(p.priceSection.kind==="pr")return '<div style="margin-top:28px"><h4 class="secT">가격</h4><div class="pr" style="margin-top:10px">'+esc(p.priceSection.text)+'</div></div>';
@@ -399,10 +407,12 @@ function inquiryFormHTML(p){
   +'<button type="submit" class="goldbtn full">문의 보내기</button></div></form>';
 }
 function openProductModal(p){
+  var hasSteps=!!(p.itinerary&&p.itinerary.length);
+  var itinHTML=hasSteps?'<div style="margin-top:28px"><h4 class="secT">일정</h4>'+iconStepsHTML(p)+'</div>':(p.itineraryText?'<div style="margin-top:28px"><h4 class="secT">일정</h4>'+flowHTML(p)+'</div>':"");
+  var inqHTML='<div style="margin-top:28px"><h4 class="secT">문의</h4><div style="margin-top:12px" id="fmWrap">'+inquiryFormHTML(p)+'</div></div>';
   modalCard.innerHTML='<button type="button" class="x" aria-label="닫기" onclick="closeModal()">✕</button><p class="ey" style="margin:0">MIRINE TOURS</p><h2 class="g">'+esc(p.modalTitle)+'</h2>'
   +(p.intro?'<p style="margin-top:12px;font-size:15px;line-height:1.7;color:#d6dcee">'+esc(p.intro)+'</p>':"")
-  +'<div style="margin-top:28px"><h4 class="secT">문의</h4><div style="margin-top:12px" id="fmWrap">'+inquiryFormHTML(p)+'</div></div>'
-  +((p.itinerary&&p.itinerary.length)||p.itineraryText?'<div style="margin-top:28px"><h4 class="secT">일정</h4>'+flowHTML(p)+'</div>':"")
+  +(hasSteps?itinHTML+inqHTML:inqHTML+itinHTML)
   +priceHTML(p)
   +'<div style="height:40px"></div>';
   var fd=document.getElementById("fd"),fx=document.getElementById("fx");
