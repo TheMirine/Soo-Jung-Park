@@ -143,6 +143,14 @@ textarea.inp{resize:vertical}
 .chk{display:flex;align-items:center;gap:8px;font-size:15px;color:#d6dcee;padding:10px 0;cursor:pointer}
 .chk input{width:20px;height:20px;accent-color:var(--accent)}
 .admin-card{border-radius:16px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.1);padding:16px;backdrop-filter:blur(8px)}
+.admin-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.admin-del-btn{flex-shrink:0;border:1px solid rgba(255,120,100,.55);background:rgba(255,80,60,.14);color:#ffb4a2;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;min-height:36px;line-height:1}
+.admin-del-btn:hover{background:rgba(255,80,60,.24);color:#fff}
+.admin-del-confirm{margin-top:12px;border:1px solid rgba(255,120,100,.45);background:rgba(255,80,60,.10);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.admin-del-confirm p{margin:0;font-size:14px;font-weight:700;color:#fff}
+.admin-del-actions{display:flex;gap:8px;flex-wrap:wrap}
+.admin-del-yes{border-radius:999px;background:#e5484d;color:#fff;padding:8px 16px;font-size:13px;font-weight:700;min-height:36px}
+.admin-del-no{border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;padding:8px 16px;font-size:13px;font-weight:500;min-height:36px}
 footer.sitefoot{position:relative;z-index:1;padding:32px 16px 24px;text-align:center}
 footer.sitefoot p{font-size:13px;letter-spacing:.22em;color:var(--dim);margin:0}
 .center{text-align:center}
@@ -377,15 +385,34 @@ if("IntersectionObserver" in window){
   document.querySelectorAll(".reel-frame").forEach(function(el){el.innerHTML='<iframe src="'+el.getAttribute("data-reel")+'embed/" title="Instagram 릴스" loading="lazy"></iframe>'});
 }
 /* ── Admin (비밀번호 잠금 + 브라우저 저장) ── */
+var adminDeleteIdx=-1;
+function askDeleteInquiry(idx){if(!adminUnlocked)return;adminDeleteIdx=idx;renderAdmin()}
+function cancelDeleteInquiry(){adminDeleteIdx=-1;renderAdmin()}
+function confirmDeleteInquiry(idx){
+  if(!adminUnlocked)return;
+  /* 저장소에서 최신 목록을 기준으로 삭제 (새로고침·재방문에도 다시 안 보이게) */
+  var list=loadInquiries();
+  if(idx<0||idx>=list.length){adminDeleteIdx=-1;renderAdmin();return}
+  list.splice(idx,1);
+  sessionInquiries=list;
+  saveInquiries();
+  adminDeleteIdx=-1;
+  renderAdmin();
+}
 function renderAdmin(){
   var lockEl=document.getElementById("adminLock"),contentEl=document.getElementById("adminContent"),root=document.getElementById("adminRoot");
-  if(!adminUnlocked){if(lockEl)lockEl.style.display="block";if(contentEl)contentEl.style.display="none";return}
+  if(!adminUnlocked){adminDeleteIdx=-1;if(lockEl)lockEl.style.display="block";if(contentEl)contentEl.style.display="none";return}
   if(lockEl)lockEl.style.display="none";if(contentEl)contentEl.style.display="block";
   /* 저장소에서 최신 목록 다시 불러오기 (새로고침·재방문에도 유지) */
   sessionInquiries=loadInquiries();
+  if(adminDeleteIdx>=sessionInquiries.length)adminDeleteIdx=-1;
   if(!sessionInquiries.length){root.innerHTML='<p class="sub" style="margin-top:0">아직 접수된 문의가 없습니다. 투어 상품을 눌러 상세 화면에서 문의를 남겨 주세요.<br>이 미리보기에서는 문의가 이메일로 열리고, 여기에 남긴 내역은 이 브라우저에 저장되어 새로고침하거나 다시 들어와도 그대로 보입니다.</p>';return}
-  root.innerHTML=sessionInquiries.map(function(q){
-    return '<div class="admin-card" style="margin-bottom:12px"><p style="margin:0;font-size:15px;font-weight:700">'+esc(q.product)+' <span style="margin-left:8px;font-size:13px;font-weight:500;color:var(--dim)">'+esc(q.name)+'님</span></p><p style="margin:4px 0 0;font-size:13px;color:#d6dcee">'+(q.date?"희망 날자: "+esc(q.date)+" · ":"")+(q.people?"인원: "+esc(q.people)+" · ":"")+'접수: '+esc(q.when)+'</p>'+(q.message?'<p style="margin:4px 0 0;font-size:13px;line-height:1.6;color:var(--dim)">'+esc(q.message)+'</p>':"")+'</div>';
+  root.innerHTML=sessionInquiries.map(function(q,idx){
+    var confirmHTML="";
+    if(adminDeleteIdx===idx){
+      confirmHTML='<div class="admin-del-confirm" role="alertdialog" aria-label="삭제 확인"><p>정말 삭제할까요?</p><span class="admin-del-actions"><button type="button" class="admin-del-yes" onclick="confirmDeleteInquiry('+idx+')">삭제</button><button type="button" class="admin-del-no" onclick="cancelDeleteInquiry()">취소</button></span></div>';
+    }
+    return '<div class="admin-card" style="margin-bottom:12px"><div class="admin-card-head"><p style="margin:0;font-size:15px;font-weight:700;min-width:0">'+esc(q.product)+' <span style="margin-left:8px;font-size:13px;font-weight:500;color:var(--dim)">'+esc(q.name)+'님</span></p><button type="button" class="admin-del-btn" onclick="askDeleteInquiry('+idx+')" aria-label="'+esc(q.product)+' 문의 삭제">삭제</button></div><p style="margin:4px 0 0;font-size:13px;color:#d6dcee">'+(q.date?"희망 날자: "+esc(q.date)+" · ":"")+(q.people?"인원: "+esc(q.people)+" · ":"")+'접수: '+esc(q.when)+'</p>'+(q.message?'<p style="margin:4px 0 0;font-size:13px;line-height:1.6;color:var(--dim)">'+esc(q.message)+'</p>':"")+confirmHTML+'</div>';
   }).join("");
 }
 (function(){
