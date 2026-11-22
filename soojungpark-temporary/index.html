@@ -116,6 +116,11 @@ textarea.inp{resize:vertical}
 .flow .c{display:flex;flex-shrink:0;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;border:1.5px solid var(--accent);color:var(--accent);font-size:13px}
 .flow em{font-style:normal;font-size:13px;max-width:110px;line-height:1.3;color:#d6dcee}
 .flow .ar{color:var(--dim);margin:0 4px}
+.star-steps{margin:14px 0 0;display:flex;flex-direction:column}
+.star-step{display:flex;align-items:center;gap:14px;position:relative;padding:6px 0}
+.star-step:not(:last-child)::after{content:"";position:absolute;left:22px;top:52px;bottom:-4px;width:2px;background:linear-gradient(180deg,rgba(201,162,39,.5),rgba(201,162,39,.12));border-radius:2px}
+.star-ico{width:45px;height:45px;flex-shrink:0;border-radius:999px;background:rgba(201,162,39,.14);border:1px solid rgba(201,162,39,.5);display:flex;align-items:center;justify-content:center;font-size:21px;line-height:1;position:relative;z-index:1;box-shadow:0 0 0 4px var(--bg)}
+.star-step-label{font-size:15.5px;line-height:1.5;color:#e6ebf7;font-weight:500}
 .nt{color:var(--dim);font-size:14px;line-height:1.6}
 .pr{font-size:28px;color:var(--accent);font-weight:700}
 .donebox{border-radius:16px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.1);padding:20px;text-align:center}
@@ -469,13 +474,25 @@ function bindZoo(){
   a.addEventListener("change",function(){star.zoo=a.checked?"포함":null;renderStar()});
   b.addEventListener("change",function(){star.zoo=b.checked?"생략":null;renderStar()});
 }
+var STAR_ICONS=["🚐","🦘","🏘️","🏔️","🍽️","🌇","🌌","🏠"];
+function starIcon(s,i){
+  if(s.indexOf("동물원")>-1)return "🦘";
+  if(s.indexOf("로라")>-1)return "🏘️";
+  if(s.indexOf("에코")>-1)return "🏔️";
+  if(s.indexOf("저녁")>-1||s.indexOf("자유식")>-1)return "🍽️";
+  if(s.indexOf("노을")>-1)return "🌇";
+  if(s.indexOf("별보기")>-1)return "🌌";
+  if(s.indexOf("귀환")>-1||s.indexOf("귀가")>-1||s.indexOf("도착")>-1)return "🏠";
+  if(s.indexOf("출발")>-1)return "🚐";
+  return STAR_ICONS[i]||"✦";
+}
 function openStarlight(p){star={step:1,zoo:null,sel:null,dateText:"",cal:null};renderStar()}
 function renderStar(){
   var p=curProduct,head='<button type="button" class="x" aria-label="닫기" onclick="closeModal()">✕</button><p class="ey" style="margin:0">MIRINE TOURS</p><h2 class="g">별빛투어</h2>',h="";
   if(star.step===1){
-    h=head+'<div style="margin-top:28px"><h4 class="secT">일정</h4><ol style="margin:12px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:8px">'
-    +p.itinerary.map(function(s){return '<li style="font-size:15px;line-height:1.7;color:#d6dcee">'+esc(s)+'</li>'}).join("")
-    +'</ol><p class="nt" style="margin-top:12px">동물원 생략 가능, 일정 맞춤 가능</p><div style="margin-top:8px">'+zooHTML()+'</div><div style="margin-top:24px"><button type="button" class="goldbtn" onclick="starStep(2)">날짜 고르기 →</button></div></div><div style="height:40px"></div>';
+    h=head+'<div style="margin-top:28px"><h4 class="secT">일정</h4><div class="star-steps" role="list" aria-label="별빛투어 일정">'
+    +p.itinerary.map(function(s,i){return '<div class="star-step" role="listitem"><span class="star-ico" aria-hidden="true">'+starIcon(s,i)+'</span><span class="star-step-label">'+esc(s)+'</span></div>'}).join("")
+    +'</div><p class="nt" style="margin-top:14px">동물원 생략 가능, 일정 맞춤 가능</p><div style="margin-top:8px">'+zooHTML()+'</div><div style="margin-top:24px"><button type="button" class="goldbtn" onclick="starStep(2)">날짜 고르기 →</button></div></div><div style="height:40px"></div>';
     modalCard.innerHTML=h;bindZoo();return;
   }
   if(star.step===2){
