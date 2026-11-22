@@ -333,7 +333,7 @@ function go(v){
   if(v==="admin")renderAdmin();
 }
 function cardHTML(p){
-  return '<button type="button" class="card" onclick="op(\''+p.id+'\')" aria-label="'+esc(p.modalTitle)+' 상세 보기"><span class="card-banner" style="background:'+p.gradient+'"><span aria-hidden="true">'+p.glyph+'</span></span><span class="card-body" style="display:block"><span class="card-title">'+esc(p.modalTitle)+'</span>'+(p.cardPrice?'<span class="card-price" style="display:block">'+esc(p.cardPrice)+'</span>':"")+(p.id==="custom"?'<span class="card-note">시드니에 필요한 모든 여행상품 이동 어느 것 이든 문의 주세요<br>자세한 답변 드리겠습니다</span>':"")+'</span></button>';
+  return '<button type="button" class="card" onclick="op(\''+p.id+'\')" aria-label="'+esc(p.modalTitle)+' 상세 보기"><span class="card-banner" style="background:'+p.gradient+'"><span aria-hidden="true">'+p.glyph+'</span></span><span class="card-body" style="display:block"><span class="card-title">'+esc(p.modalTitle)+'</span>'+(p.cardPrice?'<span class="card-price" style="display:block">'+esc(p.cardPrice)+'</span>':"")+'</span></button>';
 }
 document.getElementById("hg").innerHTML=PRODUCTS.map(cardHTML).join("");
 document.getElementById("pg").innerHTML=PRODUCTS.map(cardHTML).join("");
@@ -488,6 +488,7 @@ function openProductModal(p){
   var itinHTML=hasSteps?'<div style="margin-top:28px"><h4 class="secT">일정</h4>'+iconStepsHTML(p)+'</div>':(p.itineraryText?'<div style="margin-top:28px"><h4 class="secT">일정</h4>'+flowHTML(p)+'</div>':"");
   var inqHTML='<div style="margin-top:28px"><h4 class="secT">문의</h4><div style="margin-top:12px" id="fmWrap">'+inquiryFormHTML(p)+'</div></div>';
   modalCard.innerHTML='<button type="button" class="x" aria-label="닫기" onclick="closeModal()">✕</button><p class="ey" style="margin:0">MIRINE TOURS</p><h2 class="g">'+esc(p.modalTitle)+'</h2>'
+  +(p.id==="custom"?'<p class="card-note" style="margin-top:14px">시드니에 필요한 모든 여행상품 이동 어느 것 이든 문의 주세요 자세한 답변 드리겠습니다</p>':"")
   +(p.intro?'<p style="margin-top:12px;font-size:15px;line-height:1.7;color:#d6dcee">'+esc(p.intro)+'</p>':"")
   +(hasSteps?itinHTML+inqHTML:inqHTML+itinHTML)
   +priceHTML(p)
