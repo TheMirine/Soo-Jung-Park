@@ -470,8 +470,17 @@ function openProductModal(p){
     sessionInquiries.unshift({product:p.modalTitle,name:name,date:date,people:people,message:fullMsg,when:new Date().toLocaleString("ko-KR")});saveInquiries();
     var subject="[미리내투어 문의] "+p.modalTitle;
     var body=["상품: "+p.modalTitle,"이름: "+name,"연락처: "+contact,"희망날자: "+date,"인원: "+people,"문의내용: "+msg].join("\n");
-    document.getElementById("fmWrap").innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다. 이메일 앱이 함께 열립니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
-    window.location.href="mailto:soojung_park@hotmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+    var wrapEl=document.getElementById("fmWrap");
+    var submitBtn=this.querySelector('button[type="submit"]');
+    if(submitBtn){submitBtn.disabled=true;submitBtn.textContent="보내는 중…"}
+    var payload={"상품":p.modalTitle,"이름":name,"연락처":contact,"희망날자":date,"인원":people,"문의내용":msg,"_subject":subject,"_cc":"sjp6060@naver.com","_template":"table","_captcha":"false"};
+    fetch("https://formsubmit.co/ajax/soojung_park@hotmail.com",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(payload)}).then(function(res){
+      if(!res.ok)throw new Error("formsubmit failed");
+      if(wrapEl)wrapEl.innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
+    }).catch(function(){
+      if(wrapEl)wrapEl.innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다. 이메일 앱이 함께 열립니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
+      window.location.href="mailto:soojung_park@hotmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+    });
   });
 }
 /* ── 일반 날자 선택기 ── */
@@ -597,7 +606,19 @@ function renderStar(){
     if(type==="kakao"){var kk=document.getElementById("sfkk").value.trim();if(!kk)return fail("카카오톡 ID를 입력해 주세요.");contact="카카오톡 ID: "+kk}
     var fullMsg=[msg,star._info?"선택한 날짜 정보: "+star._info:"",star.zoo?"동물원 "+star.zoo:""].filter(Boolean).join("\n");
     sessionInquiries.unshift({product:"별빛투어",name:name,date:date,people:people,message:fullMsg,when:new Date().toLocaleString("ko-KR")});saveInquiries();
-    document.getElementById("starFormWrap").innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
+    var starSubject="[미리내투어 문의] 별빛투어";
+    var starBody=["상품: 별빛투어","이름: "+name,"연락처: "+contact,"희망날자: "+date,"인원: "+people,"문의내용: "+msg,star._info?"선택한 날짜 정보: "+star._info:"",star.zoo?"동물원 "+star.zoo:""].filter(Boolean).join("\n");
+    var starWrap=document.getElementById("starFormWrap");
+    var starBtn=this.querySelector('button[type="submit"]');
+    if(starBtn){starBtn.disabled=true;starBtn.textContent="보내는 중…"}
+    var starPayload={"상품":"별빛투어","이름":name,"연락처":contact,"희망날자":date,"인원":people,"문의내용":msg,"선택한 날짜 정보":star._info||"","동물원":star.zoo||"","_subject":starSubject,"_cc":"sjp6060@naver.com","_template":"table","_captcha":"false"};
+    fetch("https://formsubmit.co/ajax/soojung_park@hotmail.com",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(starPayload)}).then(function(res){
+      if(!res.ok)throw new Error("formsubmit failed");
+      if(starWrap)starWrap.innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
+    }).catch(function(){
+      if(starWrap)starWrap.innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다. 이메일 앱이 함께 열립니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
+      window.location.href="mailto:soojung_park@hotmail.com?subject="+encodeURIComponent(starSubject)+"&body="+encodeURIComponent(starBody);
+    });
   });
 }
 function starStep(s){star.step=s;renderStar();modalOv.scrollTop=0}
