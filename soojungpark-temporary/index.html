@@ -296,7 +296,7 @@ footer.sitefoot p.abn{margin-top:10px;font-size:11px;letter-spacing:.08em;color:
 </section>
 
 <section class="sec" id="v-admin">
-<div class="pt"><div class="center"><h2 style="margin:0;font-size:26px;font-weight:700">Admin</h2><p class="sub">관리자 메뉴</p></div><div id="adminLock"><div class="admin-card" style="max-width:420px;margin:32px auto 0;text-align:center"><p style="margin:0;font-size:28px" aria-hidden="true">🔒</p><h3 style="margin:12px 0 0;font-size:18px;font-weight:700">비밀번호를 입력해 주세요</h3><p class="sub" style="margin-top:8px">관리자만 문의 목록을 볼 수 있습니다.</p><form id="adminPwForm" novalidate style="margin-top:20px;display:flex;flex-direction:column;gap:12px"><label class="lbl" for="adminPw" style="text-align:left">비밀번호</label><input class="inp inp-light" id="adminPw" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호를 입력해 주세요"><p class="err" id="adminPwErr" role="alert" style="display:none;margin:0;text-align:left"></p><button type="submit" class="goldbtn full">들어가기</button></form></div></div><div id="adminContent" style="display:none"><div style="margin-top:40px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><h3 style="margin:0;font-size:18px;font-weight:700">문의 목록</h3><button type="button" class="ghostbtn" id="adminLockBtn" style="padding:10px 20px;min-height:44px">잠그기</button></div><p class="sub" style="margin-top:10px">문의는 이 브라우저에 저장되어 새로고침하거나 다시 들어와도 그대로 보입니다. 다른 기기에서는 보이지 않습니다.</p><div id="adminRoot" style="margin-top:16px"></div></div></div>
+<div class="pt" style="position:relative"><button type="button" class="x" style="right:0;top:0" aria-label="Admin 닫고 나가기" onclick="go('home')">✕</button><div class="center"><h2 style="margin:0;font-size:26px;font-weight:700">Admin</h2><p class="sub">관리자 메뉴</p></div><div id="adminLock"><div class="admin-card" style="max-width:420px;margin:32px auto 0;text-align:center"><p style="margin:0;font-size:28px" aria-hidden="true">🔒</p><h3 style="margin:12px 0 0;font-size:18px;font-weight:700">비밀번호를 입력해 주세요</h3><p class="sub" style="margin-top:8px">관리자만 문의 목록을 볼 수 있습니다.</p><form id="adminPwForm" novalidate style="margin-top:20px;display:flex;flex-direction:column;gap:12px"><label class="lbl" for="adminPw" style="text-align:left">비밀번호</label><input class="inp inp-light" id="adminPw" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호를 입력해 주세요"><p class="err" id="adminPwErr" role="alert" style="display:none;margin:0;text-align:left"></p><button type="submit" class="goldbtn full">들어가기</button></form></div></div><div id="adminContent" style="display:none"><div style="margin-top:40px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><h3 style="margin:0;font-size:18px;font-weight:700">문의 목록</h3><button type="button" class="ghostbtn" id="adminLockBtn" style="padding:10px 20px;min-height:44px">잠그기</button></div><p class="sub" style="margin-top:10px">문의는 이 브라우저에 저장되어 새로고침하거나 다시 들어와도 그대로 보입니다. 다른 기기에서는 보이지 않습니다.</p><div id="adminRoot" style="margin-top:16px"></div></div></div>
 </section>
 
 </div>
@@ -372,6 +372,8 @@ var FIRST_PARA="이 글은 작년 본다이 총격 사건이 있고 바로 쓴 �
 var INQ_KEY="mirine_preview_inquiries_v1";
 function loadInquiries(){try{var raw=localStorage.getItem(INQ_KEY);if(raw){var arr=JSON.parse(raw);if(Array.isArray(arr))return arr}}catch(e){}return[]}
 function saveInquiries(){try{localStorage.setItem(INQ_KEY,JSON.stringify(sessionInquiries))}catch(e){}}
+/* 저장소(localStorage)가 비어 있거나 막힌 환경(앱 내 웹뷰 등)에서도, 이번 접속에서 접수된 문의가 사라지지 않게 메모리 목록과 합쳐서 보여줌 */
+function currentInquiries(){var stored=loadInquiries();if(!stored.length)return sessionInquiries;var seen={},out=[];stored.forEach(function(q){seen[JSON.stringify(q)]=1;out.push(q)});sessionInquiries.forEach(function(q){var k=JSON.stringify(q);if(!seen[k]){seen[k]=1;out.unshift(q)}});return out}
 var TELEGRAM_HOOK="https://script.google.com/macros/s/AKfycbyOcLsyaVrJFyCdqNJEIV4c0lzNVULsWC35iUhgZ3tJb54ydkczKcJOUkNEagSmeTkG/exec";
 function notifyTelegram(d){try{fetch(TELEGRAM_HOOK,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key:"mirine-2026",product:d.product||"",name:d.name||"",contact:d.contact||"",date:d.date||"",headcount:d.headcount||"",message:d.message||""})}).catch(function(){})}catch(e){}}
 var sessionInquiries=loadInquiries();
@@ -487,7 +489,7 @@ function cancelDeleteInquiry(){adminDeleteIdx=-1;renderAdmin()}
 function confirmDeleteInquiry(idx){
   if(!adminUnlocked)return;
   /* 저장소에서 최신 목록을 기준으로 삭제 (새로고침·재방문에도 다시 안 보이게) */
-  var list=loadInquiries();
+  var list=currentInquiries();
   if(idx<0||idx>=list.length){adminDeleteIdx=-1;renderAdmin();return}
   list.splice(idx,1);
   sessionInquiries=list;
@@ -499,10 +501,10 @@ function renderAdmin(){
   var lockEl=document.getElementById("adminLock"),contentEl=document.getElementById("adminContent"),root=document.getElementById("adminRoot");
   if(!adminUnlocked){adminDeleteIdx=-1;if(lockEl)lockEl.style.display="block";if(contentEl)contentEl.style.display="none";return}
   if(lockEl)lockEl.style.display="none";if(contentEl)contentEl.style.display="block";
-  /* 저장소에서 최신 목록 다시 불러오기 (새로고침·재방문에도 유지) */
-  sessionInquiries=loadInquiries();
+  /* 저장소에서 최신 목록 다시 불러오기 (새로고침·재방문에도 유지). 저장소가 비어 있으면 이번 접속에서 접수된 문의(메모리)를 그대로 유지 */
+  sessionInquiries=currentInquiries();
   if(adminDeleteIdx>=sessionInquiries.length)adminDeleteIdx=-1;
-  if(!sessionInquiries.length){root.innerHTML='<p class="sub" style="margin-top:0">아직 접수된 문의가 없습니다. 투어 상품을 눌러 상세 화면에서 문의를 남겨 주세요.<br>이 미리보기에서는 문의가 이메일로 열리고, 여기에 남긴 내역은 이 브라우저에 저장되어 새로고침하거나 다시 들어와도 그대로 보입니다.</p>';return}
+  if(!sessionInquiries.length){root.innerHTML='<p class="sub" style="margin-top:0">아직 이 브라우저에 접수된 문의가 없습니다.<br>이 미리보기에는 중앙 데이터베이스가 없어서, 문의가 접수된 그 기기의 브라우저에만 저장됩니다. 그래서 손님이 자기 폰으로 남긴 문의나, 다른 기기·다른 브라우저에서 남긴 문의는 여기에 쌓이지 않고 텔레그램 알림으로만 도착합니다.<br>이 브라우저에서 직접 문의를 남기면 여기에 바로 쌓입니다.</p>';return}
   root.innerHTML=sessionInquiries.map(function(q,idx){
     var confirmHTML="";
     if(adminDeleteIdx===idx){
