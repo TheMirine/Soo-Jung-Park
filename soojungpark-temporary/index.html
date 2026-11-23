@@ -643,18 +643,18 @@ function openPicker(initial,cb){
 function closePicker(){document.getElementById("pickerOv").classList.remove("open")}
 document.getElementById("pickerOv").addEventListener("click",function(e){if(e.target===this)closePicker()});
 function renderPicker(){
-  var s=pickerState,first=new Date(s.vy,s.vm,1).getDay(),dim=new Date(s.vy,s.vm+1,0).getDate(),cells=[],i;
+  var s=pickerState,first=new Date(s.vy,s.vm,1).getDay(),dim=new Date(s.vy,s.vm+1,0).getDate(),cells=[],i,today=new Date();today.setHours(0,0,0,0);
   for(i=0;i<first;i++)cells.push(null);
   for(i=1;i<=dim;i++)cells.push(i);
   var h='<p style="margin:0;text-align:center;font-size:22px;font-weight:700">'+fmtPicker(s.sy,s.sm,s.sd)+'</p><p style="margin:4px 0 0;text-align:center;font-size:16px" aria-hidden="true">📅</p>'
   +'<div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between"><button type="button" aria-label="이전 달" onclick="pickerMove(-1)" style="width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);font-size:15px">‹</button><p style="margin:0;font-size:15px;font-weight:700">'+s.vy+'년 '+(s.vm+1)+'월</p><button type="button" aria-label="다음 달" onclick="pickerMove(1)" style="width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);font-size:15px">›</button></div>'
   +'<div style="margin-top:8px;display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;color:var(--dim)">'+"일월화수목금토".split("").map(function(d){return '<span style="padding:4px 0">'+d+'</span>'}).join("")+'</div><div class="calgrid">';
-  cells.forEach(function(d){if(d===null)h+='<span style="width:34px;height:34px"></span>';else{var sel=s.sy===s.vy&&s.sm===s.vm&&s.sd===d;h+='<button type="button" class="'+(sel?"sel":"")+'" onclick="pickerPick('+d+')" aria-label="'+s.vy+'년 '+(s.vm+1)+'월 '+d+'일">'+d+'</button>'}});
+  cells.forEach(function(d){if(d===null)h+='<span style="width:34px;height:34px"></span>';else{var sel=s.sy===s.vy&&s.sm===s.vm&&s.sd===d;var past=new Date(s.vy,s.vm,d)<today;if(past)h+='<button type="button" disabled aria-disabled="true" style="opacity:.3;color:#8a90a3;cursor:not-allowed" aria-label="'+s.vy+'년 '+(s.vm+1)+'월 '+d+'일 (지난 날짜)">'+d+'</button>';else h+='<button type="button" class="'+(sel?"sel":"")+'" onclick="pickerPick('+d+')" aria-label="'+s.vy+'년 '+(s.vm+1)+'월 '+d+'일">'+d+'</button>'}});
   h+='</div><button type="button" class="goldbtn" style="display:block;margin:16px auto 0;padding:10px 40px" onclick="pickerConfirm()">확인</button>';
   document.getElementById("pickerCard").innerHTML=h;
 }
 function pickerMove(d){var s=pickerState,n=new Date(s.vy,s.vm+d,1);s.vy=n.getFullYear();s.vm=n.getMonth();renderPicker()}
-function pickerPick(d){var s=pickerState;s.sy=s.vy;s.sm=s.vm;s.sd=d;renderPicker()}
+function pickerPick(d){var today=new Date();today.setHours(0,0,0,0);if(new Date(pickerState.vy,pickerState.vm,d)<today)return;var s=pickerState;s.sy=s.vy;s.sm=s.vm;s.sd=d;renderPicker()}
 function pickerConfirm(){var s=pickerState;if(pickerCb)pickerCb(fmtPicker(s.sy,s.sm,s.sd));closePicker()}
 /* ── 별빛투어 전용 3단계 흐름 ── */
 function moonInfo(y,m,d){
@@ -783,16 +783,16 @@ function openStarCal(){
 function closeStarCal(){document.getElementById("starCalOv").classList.remove("open")}
 document.getElementById("starCalOv").addEventListener("click",function(e){if(e.target===this)closeStarCal()});
 function renderStarCal(){
-  var c=star.cal,first=new Date(c.vy,c.vm,1).getDay(),dim=new Date(c.vy,c.vm+1,0).getDate(),cells=[],i;
+  var c=star.cal,first=new Date(c.vy,c.vm,1).getDay(),dim=new Date(c.vy,c.vm+1,0).getDate(),cells=[],i,today=new Date();today.setHours(0,0,0,0);
   for(i=0;i<first;i++)cells.push(null);for(i=1;i<=dim;i++)cells.push(i);
   var h='<div style="display:flex;align-items:center;justify-content:space-between"><button type="button" aria-label="이전 달" onclick="starCalMove(-1)" style="width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1)">←</button><div style="font-size:20px;font-weight:700">'+c.vy+'년 '+(c.vm+1)+'월</div><button type="button" aria-label="다음 달" onclick="starCalMove(1)" style="width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1)">→</button></div>'
   +'<div style="margin-top:12px;display:grid;grid-template-columns:repeat(7,1fr);color:var(--dim)">'+"일월화수목금토".split("").map(function(d){return '<b style="padding:4px 0;font-size:13px">'+d+'</b>'}).join("")+'</div><div class="calgrid">';
-  cells.forEach(function(d){if(d===null)h+='<span style="width:34px;height:34px"></span>';else{var sel=c.tent&&c.tent.y===c.vy&&c.tent.m===c.vm&&c.tent.d===d;h+='<button type="button" class="'+(sel?"sel":"")+'" style="'+(sel?"color:#000":"")+'" onclick="starCalPick('+d+')" aria-label="'+c.vy+'년 '+(c.vm+1)+'월 '+d+'일">'+d+'</button>'}});
+  cells.forEach(function(d){if(d===null)h+='<span style="width:34px;height:34px"></span>';else{var sel=c.tent&&c.tent.y===c.vy&&c.tent.m===c.vm&&c.tent.d===d;var past=new Date(c.vy,c.vm,d)<today;if(past)h+='<button type="button" disabled aria-disabled="true" style="opacity:.3;color:#8a90a3;cursor:not-allowed" aria-label="'+c.vy+'년 '+(c.vm+1)+'월 '+d+'일 (지난 날짜)">'+d+'</button>';else h+='<button type="button" class="'+(sel?"sel":"")+'" style="'+(sel?"color:#000":"")+'" onclick="starCalPick('+d+')" aria-label="'+c.vy+'년 '+(c.vm+1)+'월 '+d+'일">'+d+'</button>'}});
   h+='</div>'+(c.warn?'<p class="err" role="alert" style="margin-top:12px">날짜를 먼저 골라주세요</p>':"")+'<button type="button" class="goldbtn" style="display:block;margin:16px auto 0;padding:10px 40px" onclick="starCalConfirm()">확인</button>';
   document.getElementById("starCalCard").innerHTML=h;
 }
 function starCalMove(d){var c=star.cal,n=new Date(c.vy,c.vm+d,1);c.vy=n.getFullYear();c.vm=n.getMonth();renderStarCal()}
-function starCalPick(d){star.cal.tent={y:star.cal.vy,m:star.cal.vm,d:d};star.cal.warn=false;renderStarCal()}
+function starCalPick(d){var today=new Date();today.setHours(0,0,0,0);if(new Date(star.cal.vy,star.cal.vm,d)<today)return;star.cal.tent={y:star.cal.vy,m:star.cal.vm,d:d};star.cal.warn=false;renderStarCal()}
 function starCalConfirm(){if(!star.cal.tent){star.cal.warn=true;renderStarCal();return}star.sel=star.cal.tent;closeStarCal();renderStar()}
 /* 초기 뷰 */
 (function(){var h=(location.hash||"").replace("#","");var ids=["home","products","board","about","vehicle","contact","series","insta","admin"];go(ids.indexOf(h)>=0?h:"home")})();
