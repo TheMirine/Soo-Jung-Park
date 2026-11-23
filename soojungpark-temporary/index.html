@@ -296,7 +296,7 @@ footer.sitefoot p.abn{margin-top:10px;font-size:11px;letter-spacing:.08em;color:
 </section>
 
 <section class="sec" id="v-admin">
-<div class="pt" style="position:relative"><button type="button" class="x" style="right:0;top:0" aria-label="Admin 닫고 나가기" onclick="go('home')">✕</button><div class="center"><h2 style="margin:0;font-size:26px;font-weight:700">Admin</h2><p class="sub">관리자 메뉴</p></div><div id="adminLock"><div class="admin-card" style="max-width:420px;margin:32px auto 0;text-align:center"><p style="margin:0;font-size:28px" aria-hidden="true">🔒</p><h3 style="margin:12px 0 0;font-size:18px;font-weight:700">비밀번호를 입력해 주세요</h3><p class="sub" style="margin-top:8px">관리자만 문의 목록을 볼 수 있습니다.</p><form id="adminPwForm" novalidate style="margin-top:20px;display:flex;flex-direction:column;gap:12px"><label class="lbl" for="adminPw" style="text-align:left">비밀번호</label><input class="inp inp-light" id="adminPw" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호를 입력해 주세요"><p class="err" id="adminPwErr" role="alert" style="display:none;margin:0;text-align:left"></p><button type="submit" class="goldbtn full">들어가기</button></form></div></div><div id="adminContent" style="display:none"><div style="margin-top:40px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><h3 style="margin:0;font-size:18px;font-weight:700">문의 목록</h3><button type="button" class="ghostbtn" id="adminLockBtn" style="padding:10px 20px;min-height:44px">잠그기</button></div><p class="sub" style="margin-top:10px">문의는 이 브라우저에 저장되어 새로고침하거나 다시 들어와도 그대로 보입니다. 다른 기기에서는 보이지 않습니다.</p><div id="adminRoot" style="margin-top:16px"></div></div></div>
+<div class="pt" style="position:relative"><button type="button" class="x" style="right:0;top:0" aria-label="Admin 닫고 나가기" onclick="go('home')">✕</button><div class="center"><h2 style="margin:0;font-size:26px;font-weight:700">Admin</h2><p class="sub">관리자 메뉴</p></div><div id="adminLock"><div class="admin-card" style="max-width:420px;margin:32px auto 0;text-align:center"><p style="margin:0;font-size:28px" aria-hidden="true">🔒</p><h3 style="margin:12px 0 0;font-size:18px;font-weight:700">비밀번호를 입력해 주세요</h3><p class="sub" style="margin-top:8px">관리자만 문의 목록을 볼 수 있습니다.</p><form id="adminPwForm" novalidate style="margin-top:20px;display:flex;flex-direction:column;gap:12px"><label class="lbl" for="adminPw" style="text-align:left">비밀번호</label><input class="inp inp-light" id="adminPw" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호를 입력해 주세요"><p class="err" id="adminPwErr" role="alert" style="display:none;margin:0;text-align:left"></p><button type="submit" class="goldbtn full">들어가기</button></form></div></div><div id="adminContent" style="display:none"><div style="margin-top:40px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><h3 style="margin:0;font-size:18px;font-weight:700">문의 목록</h3><button type="button" class="ghostbtn" id="adminLockBtn" style="padding:10px 20px;min-height:44px">잠그기</button></div><p class="sub" style="margin-top:10px">문의는 중앙 저장소에 함께 저장되어, 어느 기기에서 남긴 문의든 여기에 다 보입니다.</p><div id="adminRoot" style="margin-top:16px"></div></div></div>
 </section>
 
 </div>
@@ -375,8 +375,76 @@ function saveInquiries(){try{localStorage.setItem(INQ_KEY,JSON.stringify(session
 /* 저장소(localStorage)가 비어 있거나 막힌 환경(앱 내 웹뷰 등)에서도, 이번 접속에서 접수된 문의가 사라지지 않게 메모리 목록과 합쳐서 보여줌 */
 function currentInquiries(){var stored=loadInquiries();if(!stored.length)return sessionInquiries;var seen={},out=[];stored.forEach(function(q){seen[JSON.stringify(q)]=1;out.push(q)});sessionInquiries.forEach(function(q){var k=JSON.stringify(q);if(!seen[k]){seen[k]=1;out.unshift(q)}});return out}
 var TELEGRAM_HOOK="https://script.google.com/macros/s/AKfycbyOcLsyaVrJFyCdqNJEIV4c0lzNVULsWC35iUhgZ3tJb54ydkczKcJOUkNEagSmeTkG/exec";
-function notifyTelegram(d){try{fetch(TELEGRAM_HOOK,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key:"mirine-2026",product:d.product||"",name:d.name||"",contact:d.contact||"",date:d.date||"",headcount:d.headcount||"",message:d.message||""})}).catch(function(){})}catch(e){}}
+function notifyTelegram(d){try{fetch(TELEGRAM_HOOK,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key:"mirine-2026",id:d.id||"",ts:d.ts||"",product:d.product||"",name:d.name||"",contact:d.contact||"",date:d.date||"",headcount:d.headcount||"",message:d.message||""})}).catch(function(){})}catch(e){}}
 var sessionInquiries=loadInquiries();
+/* ── 중앙 저장소(구글 시트) 연동 ── 문의는 텔레그램 알림과 함께 시트에도 저장되고, Admin은 시트 목록과 이 브라우저의 로컬 문의를 합쳐 최신순으로 보여줌 */
+var SHEET_LIST_URL=TELEGRAM_HOOK+"?key=mirine-2026&action=list";
+var sheetInquiries=null,sheetLoading=false;
+function newInquiryId(){return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c==="x"?r:(r&0x3|0x8);return v.toString(16)})}
+/* 시트가 돌려주는 긴 날짜("Mon Nov 30 2026 00:00:00 GMT+1100 …") 등을 "2026-11-30" 형태로 통일 */
+function fmtSheetDate(v){
+  if(v==null||v==="")return "";
+  var s=String(v),m;
+  if(m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s))return m[1]+"-"+m[2]+"-"+m[3];
+  if(m=/(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일/.exec(s))return m[1]+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[3]).slice(-2);
+  var MON={Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12"};
+  if(m=/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})\s+(\d{4})/.exec(s))return m[3]+"-"+MON[m[1]]+"-"+("0"+m[2]).slice(-2);
+  var d=new Date(s);
+  if(!isNaN(d.getTime()))return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+  return s;
+}
+/* 정렬용 접수 시각: 새 문의는 ts(ISO), 옛 로컬 문의는 when("2026. 11. 23. 오후 9:50:42")을 파싱 */
+function inqTime(q){
+  if(q.ts){var t=Date.parse(q.ts);if(!isNaN(t))return t}
+  if(q.when){var m=/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.\s*(오전|오후)\s*(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(q.when);if(m){var h=+m[5]%12;if(m[4]==="오후")h+=12;return new Date(+m[1],+m[2]-1,+m[3],h,+m[6],+(m[7]||0)).getTime()}}
+  return 0;
+}
+/* id 없는 옛 문의의 중복 판정 키: 날자+상품+이름 */
+function inqKey(q){return fmtSheetDate(q.date)+"|"+(q.product||"")+"|"+(q.name||"")}
+function normalizeSheetInquiry(s){
+  var msg=String(s.message||""),contact=String(s.contact||"");
+  var full=msg&&contact?msg+"\n"+contact:(msg||contact);
+  var when="";if(s.ts){var d=new Date(s.ts);if(!isNaN(d.getTime()))when=d.toLocaleString("ko-KR")}
+  return {id:s.id||"",ts:s.ts||"",product:s.product||"",name:s.name||"",date:fmtSheetDate(s.date),people:s.headcount||"",message:full,when:when,_sheet:true};
+}
+var adminList=[];
+function mergedInquiries(){
+  var out=[],byId={},byKey={};
+  currentInquiries().forEach(function(q){
+    var c={};for(var k in q)c[k]=q[k];
+    c._local=true;out.push(c);
+    if(c.id)byId[c.id]=c;
+    var kk=inqKey(c);if(!byKey[kk])byKey[kk]=c;
+  });
+  if(sheetInquiries)sheetInquiries.forEach(function(s){
+    var n=normalizeSheetInquiry(s);
+    var hit=(n.id&&byId[n.id])||byKey[inqKey(n)];
+    if(hit){hit._sheet=true;if(n.id)hit.id=n.id;if(n.ts&&!hit.ts)hit.ts=n.ts}
+    else{out.push(n);if(n.id)byId[n.id]=n;byKey[inqKey(n)]=n}
+  });
+  out.sort(function(a,b){return inqTime(b)-inqTime(a)});
+  return out;
+}
+function loadSheetInquiries(){
+  if(sheetLoading||sheetInquiries!==null)return;
+  sheetLoading=true;
+  function ok(data){sheetLoading=false;sheetInquiries=(data&&data.ok&&Array.isArray(data.inquiries))?data.inquiries:[];if(adminUnlocked)renderAdmin()}
+  function fail(){sheetLoading=false;sheetInquiries=[];if(adminUnlocked)renderAdmin()}
+  fetch(SHEET_LIST_URL,{method:"GET"}).then(function(r){if(!r.ok)throw new Error("sheet list failed");return r.json()}).then(ok).catch(function(){
+    /* 다른 도메인이라 fetch가 막히면 JSONP 방식으로 재시도 */
+    var cb="mirineSheetCb"+Date.now(),sc=document.createElement("script"),done=false;
+    var timer=setTimeout(function(){cleanup();fail()},15000);
+    function cleanup(){if(done)return;done=true;clearTimeout(timer);try{delete window[cb]}catch(e){window[cb]=undefined}if(sc.parentNode)sc.parentNode.removeChild(sc)}
+    window[cb]=function(data){cleanup();ok(data)};
+    sc.onerror=function(){cleanup();fail()};
+    sc.src=SHEET_LIST_URL+"&callback="+cb;
+    document.head.appendChild(sc);
+  });
+}
+/* 시트에 있는 문의 삭제 — 삭제는 텔레그램 알림을 보내지 않음 */
+function deleteSheetInquiry(id){
+  try{fetch(TELEGRAM_HOOK,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({key:"mirine-2026",action:"delete",id:id})}).catch(function(){})}catch(e){}
+}
 var adminUnlocked=false;
 function hashPw(s){var h=5381;for(var i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))|0}return h}
 var ADMIN_PW_HASH=1542738468;
@@ -488,12 +556,21 @@ function askDeleteInquiry(idx){if(!adminUnlocked)return;adminDeleteIdx=idx;rende
 function cancelDeleteInquiry(){adminDeleteIdx=-1;renderAdmin()}
 function confirmDeleteInquiry(idx){
   if(!adminUnlocked)return;
-  /* 저장소에서 최신 목록을 기준으로 삭제 (새로고침·재방문에도 다시 안 보이게) */
-  var list=currentInquiries();
+  /* 화면에 보이는 합쳐진 목록(시트+로컬)을 기준으로 삭제 */
+  var list=mergedInquiries();
   if(idx<0||idx>=list.length){adminDeleteIdx=-1;renderAdmin();return}
-  list.splice(idx,1);
-  sessionInquiries=list;
+  var item=list[idx];
+  /* 이 브라우저에 같은 문의가 저장돼 있으면 로컬에서도 제거 (새로고침·재방문에도 다시 안 보이게) */
+  sessionInquiries=currentInquiries().filter(function(q){
+    if(item.id&&q.id)return q.id!==item.id;
+    return !(inqKey(q)===inqKey(item)&&String(q.message||"")===String(item.message||""));
+  });
   saveInquiries();
+  /* 시트에 있는 문의면 시트에서도 삭제하고, 불러온 목록에서도 바로 빼기 */
+  if(item._sheet){
+    if(item.id)deleteSheetInquiry(item.id);
+    if(sheetInquiries)sheetInquiries=sheetInquiries.filter(function(s){return item.id?s.id!==item.id:inqKey(normalizeSheetInquiry(s))!==inqKey(item)});
+  }
   adminDeleteIdx=-1;
   renderAdmin();
 }
@@ -501,11 +578,13 @@ function renderAdmin(){
   var lockEl=document.getElementById("adminLock"),contentEl=document.getElementById("adminContent"),root=document.getElementById("adminRoot");
   if(!adminUnlocked){adminDeleteIdx=-1;if(lockEl)lockEl.style.display="block";if(contentEl)contentEl.style.display="none";return}
   if(lockEl)lockEl.style.display="none";if(contentEl)contentEl.style.display="block";
-  /* 저장소에서 최신 목록 다시 불러오기 (새로고침·재방문에도 유지). 저장소가 비어 있으면 이번 접속에서 접수된 문의(메모리)를 그대로 유지 */
-  sessionInquiries=currentInquiries();
-  if(adminDeleteIdx>=sessionInquiries.length)adminDeleteIdx=-1;
-  if(!sessionInquiries.length){root.innerHTML='<p class="sub" style="margin-top:0">아직 이 브라우저에 접수된 문의가 없습니다.<br>이 미리보기에는 중앙 데이터베이스가 없어서, 문의가 접수된 그 기기의 브라우저에만 저장됩니다. 그래서 손님이 자기 폰으로 남긴 문의나, 다른 기기·다른 브라우저에서 남긴 문의는 여기에 쌓이지 않고 텔레그램 알림으로만 도착합니다.<br>이 브라우저에서 직접 문의를 남기면 여기에 바로 쌓입니다.</p>';return}
-  root.innerHTML=sessionInquiries.map(function(q,idx){
+  /* 중앙 저장소(구글 시트) 목록 불러오기 — 처음 열 때 한 번 가져오고, 끝나면 다시 그림 */
+  loadSheetInquiries();
+  /* 시트 목록 + 이 브라우저의 로컬 문의를 합쳐 최신순으로 (같은 문의는 하나로) */
+  adminList=mergedInquiries();
+  if(adminDeleteIdx>=adminList.length)adminDeleteIdx=-1;
+  if(!adminList.length){root.innerHTML=sheetInquiries===null?'<p class="sub" style="margin-top:0">문의 목록을 불러오는 중입니다…</p>':'<p class="sub" style="margin-top:0">아직 접수된 문의가 없습니다.</p>';return}
+  root.innerHTML=adminList.map(function(q,idx){
     var confirmHTML="";
     if(adminDeleteIdx===idx){
       confirmHTML='<div class="admin-del-confirm" role="alertdialog" aria-label="삭제 확인"><p>정말 삭제할까요?</p><span class="admin-del-actions"><button type="button" class="admin-del-yes" onclick="confirmDeleteInquiry('+idx+')">삭제</button><button type="button" class="admin-del-no" onclick="cancelDeleteInquiry()">취소</button></span></div>';
@@ -614,8 +693,9 @@ function openProductModal(p){
       if(psOpt.cruise)optLines.push("크루즈 "+psOpt.cruise);
     }
     var fullMsg=[msg,contact].concat(optLines).filter(Boolean).join("\n");
-    sessionInquiries.unshift({product:p.modalTitle,name:name,date:date,people:people,message:fullMsg,when:new Date().toLocaleString("ko-KR")});saveInquiries();
-    notifyTelegram({product:p.modalTitle,name:name,contact:contact,date:date,headcount:people,message:[msg].concat(optLines).filter(Boolean).join("\n")});
+    var inqId=newInquiryId(),inqTs=new Date().toISOString();
+    sessionInquiries.unshift({id:inqId,ts:inqTs,product:p.modalTitle,name:name,date:date,people:people,message:fullMsg,when:new Date().toLocaleString("ko-KR")});saveInquiries();
+    notifyTelegram({id:inqId,ts:inqTs,product:p.modalTitle,name:name,contact:contact,date:date,headcount:people,message:[msg].concat(optLines).filter(Boolean).join("\n")});
     var subject="[미리내투어 문의] "+p.modalTitle;
     var body=["상품: "+p.modalTitle,"이름: "+name,"연락처: "+contact,"희망날자: "+date,"인원: "+people,"문의내용: "+msg].concat(optLines).join("\n");
     var wrapEl=document.getElementById("fmWrap");
@@ -754,8 +834,9 @@ function renderStar(){
     if(type==="phone"){var ph=document.getElementById("sfph").value.trim();if(!ph)return fail("전화번호를 입력해 주세요.");contact="전화번호: "+ph}
     if(type==="kakao"){var kk=document.getElementById("sfkk").value.trim();if(!kk)return fail("카카오톡 ID를 입력해 주세요.");contact="카카오톡 ID: "+kk}
     var fullMsg=[msg,star._info?"선택한 날짜 정보: "+star._info:"",star.zoo?"동물원 "+star.zoo:""].filter(Boolean).join("\n");
-    sessionInquiries.unshift({product:"별빛투어",name:name,date:date,people:people,message:fullMsg,when:new Date().toLocaleString("ko-KR")});saveInquiries();
-    notifyTelegram({product:"별빛투어",name:name,contact:contact,date:date,headcount:people,message:msg});
+    var inqId=newInquiryId(),inqTs=new Date().toISOString();
+    sessionInquiries.unshift({id:inqId,ts:inqTs,product:"별빛투어",name:name,date:date,people:people,message:fullMsg,when:new Date().toLocaleString("ko-KR")});saveInquiries();
+    notifyTelegram({id:inqId,ts:inqTs,product:"별빛투어",name:name,contact:contact,date:date,headcount:people,message:msg});
     var starSubject="[미리내투어 문의] 별빛투어";
     var starBody=["상품: 별빛투어","이름: "+name,"연락처: "+contact,"희망날자: "+date,"인원: "+people,"문의내용: "+msg,star._info?"선택한 날짜 정보: "+star._info:"",star.zoo?"동물원 "+star.zoo:""].filter(Boolean).join("\n");
     var starWrap=document.getElementById("starFormWrap");
