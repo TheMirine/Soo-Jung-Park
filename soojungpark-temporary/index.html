@@ -558,13 +558,14 @@ function priceHTML(p){
   if(p.priceSection.kind==="pr")return '<div style="margin-top:28px"><h4 class="secT">가격</h4><div class="pr" style="margin-top:10px">'+esc(p.priceSection.text)+'</div></div>';
   return '<div style="margin-top:28px"><h4 class="secT">가격</h4><p style="margin:10px 0 0;font-size:15px;line-height:1.7;color:#d6dcee">'+esc(p.priceSection.text)+'</p></div>';
 }
+function peopleText(aId,cId){var a=document.getElementById(aId),c=document.getElementById(cId);var av=a?a.value.trim():"",cv=c?c.value.trim():"";return [av?("성인 "+av):"",cv?("아이 "+cv):""].filter(Boolean).join(", ")}
 function inquiryFormHTML(p){
   return '<form id="inqForm" novalidate><div style="display:flex;flex-direction:column;gap:14px">'
   +'<div><label class="lbl" for="fprod">상품</label><input class="inp" id="fprod" value="'+esc(p.modalTitle)+'" readonly></div>'
   +'<div><label class="lbl" for="fn">이름</label><input class="inp" id="fn" placeholder="이름을 입력해 주세요"></div>'
   +'<div><label class="lbl" for="fct">연락처</label><select class="inp inp-light" id="fct"><option value="">연락처 종류를 선택해 주세요</option><option value="email">이메일</option><option value="phone">전화번호</option><option value="kakao">카카오톡 ID</option></select><div id="fctExtra" style="margin-top:12px"></div></div>'
   +'<div><label class="lbl" for="fdt">문의 희망날자</label><div class="rowflex"><input class="inp" id="fdt" readonly placeholder="날자를 선택하세요"><button type="button" id="fdtBtn" aria-label="날자 선택" style="width:44px;height:44px;flex-shrink:0;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);font-size:18px">📅</button></div></div>'
-  +'<div><label class="lbl" for="fp">인원</label><input class="inp" id="fp" inputmode="numeric" placeholder="예: 2명"></div>'
+  +'<div style="display:flex;gap:12px"><div style="flex:1"><label class="lbl" for="fpAdult">성인</label><input class="inp" id="fpAdult" type="number" inputmode="numeric" min="0" placeholder="예: 2"></div><div style="flex:1"><label class="lbl" for="fpChild">아이</label><input class="inp" id="fpChild" type="number" inputmode="numeric" min="0" placeholder="예: 1"></div></div>'
   +(p.id==="port-stephens"?'<div><span class="lbl">4WD 포함/생략</span><div style="display:flex;flex-wrap:wrap;column-gap:24px"><label class="chk"><input type="checkbox" id="psFwdIn"> 4WD 포함</label><label class="chk"><input type="checkbox" id="psFwdOut"> 4WD 생략</label></div></div>'
   +'<div><span class="lbl">크루즈 포함/생략</span><div style="display:flex;flex-wrap:wrap;column-gap:24px"><label class="chk"><input type="checkbox" id="psCrIn"> 크루즈 포함</label><label class="chk"><input type="checkbox" id="psCrOut"> 크루즈 생략</label></div></div>':"")
   +'<div><label class="lbl" for="fm2">문의 내용</label><textarea class="inp" id="fm2" rows="4" placeholder="궁금하신 점을 남겨 주세요"></textarea></div>'
@@ -598,7 +599,7 @@ function openProductModal(p){
   document.getElementById("fdtBtn").addEventListener("click",function(){openPicker(document.getElementById("fdt").value,function(v){document.getElementById("fdt").value=v})});
   document.getElementById("inqForm").addEventListener("submit",function(e){
     e.preventDefault();
-    var name=document.getElementById("fn").value.trim(),date=document.getElementById("fdt").value.trim(),people=document.getElementById("fp").value.trim(),msg=document.getElementById("fm2").value.trim(),err=document.getElementById("formErr"),type=fct.value,contact="";
+    var name=document.getElementById("fn").value.trim(),date=document.getElementById("fdt").value.trim(),people=peopleText("fpAdult","fpChild"),msg=document.getElementById("fm2").value.trim(),err=document.getElementById("formErr"),type=fct.value,contact="";
     function fail(t){err.textContent=t;err.style.display="block"}
     if(!name)return fail("이름을 입력해 주세요.");
     if(!type)return fail("연락처 종류를 골라 주세요.");
@@ -625,7 +626,7 @@ function openProductModal(p){
       if(wrapEl)wrapEl.innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
     }).catch(function(){
       if(wrapEl)wrapEl.innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다. 이메일 앱이 함께 열립니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
-      window.location.href="mailto:soojung_park@hotmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+      var _ml=document.createElement("a");_ml.href="mailto:soojung_park@hotmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);document.body.appendChild(_ml);_ml.click();_ml.remove();
     });
   });
 }
@@ -723,7 +724,7 @@ function renderStar(){
   h=head+'<div style="margin-top:28px"><h4 class="secT">문의</h4><div style="margin-top:12px" id="starFormWrap">'
   +'<form id="starForm" novalidate><div style="display:flex;flex-direction:column;gap:14px">'
   +'<div><label class="lbl" for="sfn">이름</label><input class="inp" id="sfn" placeholder="이름을 입력해 주세요"></div>'
-  +'<div><label class="lbl" for="sfp">인원</label><input class="inp" id="sfp" placeholder="예: 성인 2, 아이 1"></div>'
+  +'<div style="display:flex;gap:12px"><div style="flex:1"><label class="lbl" for="sfpAdult">성인</label><input class="inp" id="sfpAdult" type="number" inputmode="numeric" min="0" placeholder="예: 2"></div><div style="flex:1"><label class="lbl" for="sfpChild">아이</label><input class="inp" id="sfpChild" type="number" inputmode="numeric" min="0" placeholder="예: 1"></div></div>'
   +'<div><label class="lbl" for="sfdt">희망 날짜</label><input class="inp" id="sfdt" value="'+esc(star.dateText)+'"></div>'
   +'<div><label class="lbl" for="sfinfo">선택한 날짜 정보</label><input class="inp" id="sfinfo" value="'+esc(info)+'" readonly></div>'
   +'<div><span class="lbl">동물원 포함/생략</span>'+zooHTML()+'</div>'
@@ -742,7 +743,7 @@ function renderStar(){
   });
   document.getElementById("starForm").addEventListener("submit",function(e){
     e.preventDefault();
-    var name=document.getElementById("sfn").value.trim(),people=document.getElementById("sfp").value.trim(),date=document.getElementById("sfdt").value.trim(),msg=document.getElementById("sfm").value.trim(),err=document.getElementById("starErr"),type=ct.value,contact="";
+    var name=document.getElementById("sfn").value.trim(),people=peopleText("sfpAdult","sfpChild"),date=document.getElementById("sfdt").value.trim(),msg=document.getElementById("sfm").value.trim(),err=document.getElementById("starErr"),type=ct.value,contact="";
     function fail(t){err.textContent=t;err.style.display="block"}
     if(!name)return fail("이름을 입력해 주세요.");
     if(!people)return fail("인원을 입력해 주세요.");
@@ -764,7 +765,7 @@ function renderStar(){
       if(starWrap)starWrap.innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
     }).catch(function(){
       if(starWrap)starWrap.innerHTML='<div class="donebox"><p style="margin:0;font-size:17px;font-weight:700">문의가 접수되었습니다</p><p style="margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--dim)">남겨 주신 정보로 미리내투어에서 안내드리겠습니다. 이메일 앱이 함께 열립니다.</p><button type="button" class="goldbtn" style="margin-top:16px" onclick="closeModal()">확인</button></div>';
-      window.location.href="mailto:soojung_park@hotmail.com?subject="+encodeURIComponent(starSubject)+"&body="+encodeURIComponent(starBody);
+      var _ml2=document.createElement("a");_ml2.href="mailto:soojung_park@hotmail.com?subject="+encodeURIComponent(starSubject)+"&body="+encodeURIComponent(starBody);document.body.appendChild(_ml2);_ml2.click();_ml2.remove();
     });
   });
 }
