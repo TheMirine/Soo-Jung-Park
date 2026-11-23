@@ -142,6 +142,7 @@ textarea.inp{resize:vertical}
 .pr{font-size:28px;color:var(--accent);font-weight:700}
 .donebox{border-radius:16px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.1);padding:20px;text-align:center}
 .err{font-size:13px;font-weight:500;color:#ffb4a2}
+.inq-note{margin:2px 0 0;padding:11px 12px;border:1px solid rgba(255,255,255,.16);border-radius:10px;background:rgba(255,255,255,.07);text-align:center;font-size:14px;line-height:1.6;font-weight:600;color:#e6ebf7}
 .calwrap{position:fixed;inset:0;z-index:60;overflow-y:auto;background:rgba(3,6,14,.82);display:none}
 .calwrap.open{display:block}
 .cal{width:310px;max-width:92vw;margin:8vh auto 0;background:linear-gradient(180deg,rgba(7,13,36,.85),rgba(5,8,26,.90)),var(--bgimg) center/cover,var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;text-align:center}
@@ -496,7 +497,7 @@ function inquiryFormHTML(p){
   +'<div><span class="lbl">크루즈 포함/생략</span><div style="display:flex;flex-wrap:wrap;column-gap:24px"><label class="chk"><input type="checkbox" id="psCrIn"> 크루즈 포함</label><label class="chk"><input type="checkbox" id="psCrOut"> 크루즈 생략</label></div></div>':"")
   +'<div><label class="lbl" for="fm2">문의 내용</label><textarea class="inp" id="fm2" rows="4" placeholder="궁금하신 점을 남겨 주세요"></textarea></div>'
   +'<p class="err" id="formErr" role="alert" style="display:none;margin:0"></p>'
-  +'<button type="submit" class="goldbtn full">문의 보내기</button></div></form>';
+  +'<button type="submit" class="goldbtn full">문의 보내기</button><p class="inq-note">문의하기는 예약이 된 것은 아닙니다.</p></div></form>';
 }
 function openProductModal(p){
   var hasSteps=!!(p.itinerary&&p.itinerary.length);
@@ -657,7 +658,7 @@ function renderStar(){
   +'<div><label class="lbl" for="sfct">연락처</label><select class="inp inp-light" id="sfct"><option value="">연락처 종류를 선택해 주세요</option><option value="email">이메일</option><option value="phone">전화번호</option><option value="kakao">카카오톡 ID</option></select><div id="sfctExtra" style="margin-top:12px"></div></div>'
   +'<div><label class="lbl" for="sfm">메시지</label><textarea class="inp" id="sfm" rows="4" placeholder="예: 카툼바 저녁은 자유식으로 하고 싶어요"></textarea></div>'
   +'<p class="err" id="starErr" role="alert" style="display:none;margin:0"></p>'
-  +'<button type="submit" class="goldbtn full">문의 보내기</button></div></form></div></div><div style="height:40px"></div>';
+  +'<button type="submit" class="goldbtn full">문의 보내기</button><p class="inq-note">문의하기는 예약이 된 것은 아닙니다.</p></div></form></div></div><div style="height:40px"></div>';
   modalCard.innerHTML=h;bindZoo();
   var ct=document.getElementById("sfct");
   ct.addEventListener("change",function(){
