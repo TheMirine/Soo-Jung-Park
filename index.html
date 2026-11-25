@@ -534,14 +534,24 @@ reelsRoot.innerHTML=REELS.map(function(r,i){
   return '<article class="reel-card"><div class="reel-head"><span>'+(REELS.length-i)+'번 릴스</span><time datetime="'+r.date+'">'+r.dateLabel+'</time></div><p class="reel-title">@the_mirine_pot 릴스</p><button type="button" class="reel-play" onclick="openReel('+i+')" aria-label="'+esc(r.dateLabel)+' 릴스 재생"><span class="reel-play-disc" aria-hidden="true">▶</span><span class="reel-play-txt">릴스 재생</span><span class="reel-play-sub">누르면 이 화면 안에서 재생됩니다</span></button><div class="reel-foot"><a href="'+esc(r.url)+'" target="_blank" rel="noopener">Instagram에서 보기 ↗</a></div></article>';
 }).join("");
 var reelOv=document.getElementById("reelOv"),reelScreen=document.getElementById("reelScreen"),reelOvLink=document.getElementById("reelOvLink"),reelOvTitle=document.getElementById("reelOvTitle");
+var reelBlobUrl=null,reelPlaySeq=0;
 function openReel(i){
   var r=REELS[i];if(!r)return;
+  var seq=++reelPlaySeq;
   reelOvTitle.textContent="@the_mirine_pot 릴스 · "+r.dateLabel;
   reelOvLink.href=r.url;
-  reelScreen.innerHTML='<video src="'+esc(r.file)+'" controls autoplay playsinline preload="auto" aria-label="릴스 '+esc(r.dateLabel)+'"></video>';
+  if(reelBlobUrl){try{URL.revokeObjectURL(reelBlobUrl)}catch(e){}reelBlobUrl=null}
+  reelScreen.innerHTML='<video controls autoplay playsinline preload="auto" aria-label="릴스 '+esc(r.dateLabel)+'"></video>';
+  var v=reelScreen.querySelector("video");
+  fetch(r.file).then(function(res){return res.blob()}).then(function(b){
+    if(seq!==reelPlaySeq||!reelOv.classList.contains("open"))return;
+    reelBlobUrl=URL.createObjectURL(new Blob([b],{type:"video/mp4"}));
+    v.src=reelBlobUrl;
+    var p=v.play();if(p&&p.catch)p.catch(function(){});
+  }).catch(function(){if(seq===reelPlaySeq)v.src=r.file});
   reelOv.classList.add("open");document.body.style.overflow="hidden";reelOv.scrollTop=0;
 }
-function closeReel(){var v=reelScreen.querySelector("video");if(v){try{v.pause()}catch(e){}}reelOv.classList.remove("open");reelScreen.innerHTML="";document.body.style.overflow=""}
+function closeReel(){reelPlaySeq++;var v=reelScreen.querySelector("video");if(v){try{v.pause()}catch(e){}}reelOv.classList.remove("open");reelScreen.innerHTML="";if(reelBlobUrl){try{URL.revokeObjectURL(reelBlobUrl)}catch(e){}reelBlobUrl=null}document.body.style.overflow=""}
 reelOv.addEventListener("click",function(e){if(e.target===reelOv)closeReel()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&reelOv.classList.contains("open"))closeReel()});
 /* ── Admin (비밀번호 잠금 + 브라우저 저장) ── */
