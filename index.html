@@ -200,6 +200,10 @@ footer.sitefoot p.abn{margin-top:10px;font-size:11px;letter-spacing:.08em;color:
 .contact-value{font-size:24px;font-weight:700;letter-spacing:.02em;color:#fff;line-height:1.25}
 .contact-hint{font-size:13px;color:var(--accent)}
 .pt{padding-top:40px}.pt2{padding-top:56px}
+.lang-banner{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;padding:12px 56px;background:#eac85e;color:#05081a;text-align:center}
+.lang-banner p{margin:0;font-size:15px;font-weight:700;line-height:1.5}
+.lang-x{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;min-height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#05081a;border-radius:999px}
+.lang-x:hover{background:rgba(5,8,26,.14)}
 </style>
 </head>
 <body>
@@ -224,8 +228,14 @@ footer.sitefoot p.abn{margin-top:10px;font-size:11px;letter-spacing:.08em;color:
 <span class="dd"><button type="button" class="dd-main" onclick="go('series')">연재글</button><button type="button" class="dd-chev" onclick="ddToggle(this)" aria-expanded="false" aria-label="연재글 목록 펼치기">▾</button><span class="dd-panel"><button type="button" onclick="go('series')">연재글 읽기</button></span></span>
 <button type="button" onclick="go('insta')">미리내 인스타</button>
 <button type="button" onclick="go('admin')">Admin</button>
+<span class="dd"><button type="button" class="dd-main" onclick="ddToggle(this)" aria-expanded="false">language</button><button type="button" class="dd-chev" onclick="ddToggle(this)" aria-expanded="false" aria-label="language 목록 펼치기">▾</button><span class="dd-panel"><button type="button" onclick="setLang('ko')">한글</button><button type="button" onclick="setLang('en')">영문</button></span></span>
 </nav>
 </header>
+
+<div class="lang-banner" id="langBanner" role="status" style="display:none">
+<p>English translation is in progress.</p>
+<button type="button" class="lang-x" onclick="closeLangBanner()" aria-label="Close notice">✕</button>
+</div>
 
 <div class="wrap">
 <section class="sec" id="v-home">
@@ -470,6 +480,12 @@ function ddToggle(btn){
   btn.setAttribute("aria-expanded",open?"true":"false");
   btn.setAttribute("aria-label",dd.querySelector(".dd-main").textContent+" 목록 "+(open?"접기":"펼치기"));
 }
+function setLang(lang){
+  var b=document.getElementById("langBanner");
+  if(b)b.style.display=(lang==="en")?"flex":"none";
+  closeNav();
+}
+function closeLangBanner(){var b=document.getElementById("langBanner");if(b)b.style.display="none"}
 function closeNav(){
   nav.classList.remove("open");mb.setAttribute("aria-expanded","false");
   document.querySelectorAll(".dd.expanded").forEach(function(d){d.classList.remove("expanded");var c=d.querySelector(".dd-chev");if(c){c.setAttribute("aria-expanded","false");c.setAttribute("aria-label",d.querySelector(".dd-main").textContent+" 목록 펼치기")}});
